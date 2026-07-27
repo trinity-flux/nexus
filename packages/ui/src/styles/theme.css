@@ -239,6 +239,106 @@
 }
 
 @layer utilities {
+  /*
+   * Enter and exit animations for overlays.
+   *
+   * Written here rather than pulled from tw-animate-css: six keyframes is less
+   * code than the dependency, and it keeps the durations and easing on the
+   * same tokens as everything else.
+   *
+   * Exits are faster than entrances (120ms against 180ms) on purpose. An
+   * entrance is information arriving and wants to be followed; an exit is
+   * something the user already dismissed, and making them wait for it is what
+   * makes an interface feel slow.
+   */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.96);
+    }
+  }
+
+  @keyframes scale-out {
+    to {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.96);
+    }
+  }
+
+  /* For popovers and menus, which are positioned by Radix and must not have
+     their transform overwritten. */
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  @keyframes pop-out {
+    to {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  @keyframes slide-in-from-bottom {
+    from {
+      opacity: 0;
+      transform: translateY(0.75rem);
+    }
+  }
+
+  @keyframes slide-out-to-right {
+    to {
+      opacity: 0;
+      transform: translateX(1.5rem);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in var(--duration-base) var(--ease-out);
+  }
+
+  .animate-fade-out {
+    animation: fade-out var(--duration-fast) var(--ease-in-out);
+  }
+
+  .animate-scale-in {
+    animation: scale-in var(--duration-base) var(--ease-out);
+  }
+
+  .animate-scale-out {
+    animation: scale-out var(--duration-fast) var(--ease-in-out);
+  }
+
+  .animate-pop-in {
+    animation: pop-in var(--duration-fast) var(--ease-out);
+  }
+
+  .animate-pop-out {
+    animation: pop-out var(--duration-fast) var(--ease-in-out);
+  }
+
+  .animate-slide-in-bottom {
+    animation: slide-in-from-bottom var(--duration-base) var(--ease-out);
+  }
+
+  .animate-slide-out-right {
+    animation: slide-out-to-right var(--duration-fast) var(--ease-in-out);
+  }
+
   /* Visible to screen readers, invisible on screen. Used for the skip link,
      icon-only button labels and live-region announcements. */
   .sr-only {

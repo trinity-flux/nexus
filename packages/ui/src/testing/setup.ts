@@ -44,4 +44,13 @@ if (hasDom) {
   if (!Element.prototype.scrollIntoView) {
     Element.prototype.scrollIntoView = vi.fn();
   }
+
+  // jsdom does not implement the Pointer Capture API. Radix calls it on every
+  // menu and dialog dismissal, and the resulting TypeError surfaces as an
+  // unhandled rejection that fails the run even when every assertion passed.
+  if (!Element.prototype.hasPointerCapture) {
+    Element.prototype.hasPointerCapture = () => false;
+    Element.prototype.setPointerCapture = () => {};
+    Element.prototype.releasePointerCapture = () => {};
+  }
 }
