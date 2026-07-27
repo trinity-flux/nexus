@@ -15,11 +15,16 @@
     "db:push": "supabase db push",
     "db:diff": "supabase db diff -f",
     "db:types": "supabase gen types typescript --local > src/generated/database.types.ts",
-    "clean": "rm -rf node_modules *.tsbuildinfo"
+    "clean": "rm -rf node_modules *.tsbuildinfo",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.4",
     "@trinity-nexus/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
     "supabase": "2.109.1",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }
