@@ -27,6 +27,10 @@ const en = {
   'nav.settings': 'Settings',
   'nav.openMenu': 'Open menu',
   'nav.account': 'Account',
+  'nav.closeMenu': 'Close menu',
+  'nav.menu': 'Menu',
+  'nav.breadcrumb': 'Breadcrumb',
+  'nav.mainNavigation': 'Main navigation',
 
   'theme.label': 'Theme',
   'theme.light': 'Light',
@@ -34,6 +38,13 @@ const en = {
   'theme.system': 'System',
 
   'locale.label': 'Language',
+
+  'footer.forum': 'Forum',
+  'footer.community': 'Community',
+  'footer.repository': 'Source code',
+  'footer.backToTop': 'Back to top',
+  'footer.copyright': '© {year} Trinity Nexus',
+  'footer.builtBy': 'Built and run by the people who play here.',
 
   'home.heading': 'Welcome to Trinity Nexus',
   'home.subheading':
@@ -196,6 +207,10 @@ const es: Record<TranslationKey, string> = {
   'nav.settings': 'Ajustes',
   'nav.openMenu': 'Abrir menú',
   'nav.account': 'Cuenta',
+  'nav.closeMenu': 'Cerrar menú',
+  'nav.menu': 'Menú',
+  'nav.breadcrumb': 'Ruta de navegación',
+  'nav.mainNavigation': 'Navegación principal',
 
   'theme.label': 'Tema',
   'theme.light': 'Claro',
@@ -203,6 +218,13 @@ const es: Record<TranslationKey, string> = {
   'theme.system': 'Sistema',
 
   'locale.label': 'Idioma',
+
+  'footer.forum': 'Foro',
+  'footer.community': 'Comunidad',
+  'footer.repository': 'Código fuente',
+  'footer.backToTop': 'Volver arriba',
+  'footer.copyright': '© {year} Trinity Nexus',
+  'footer.builtBy': 'Hecho y mantenido por quienes juegan aquí.',
 
   'home.heading': 'Bienvenido a Trinity Nexus',
   'home.subheading':
@@ -363,6 +385,10 @@ const fr: Record<TranslationKey, string> = {
   'nav.settings': 'Paramètres',
   'nav.openMenu': 'Ouvrir le menu',
   'nav.account': 'Compte',
+  'nav.closeMenu': 'Fermer le menu',
+  'nav.menu': 'Menu',
+  'nav.breadcrumb': 'Fil d’Ariane',
+  'nav.mainNavigation': 'Navigation principale',
 
   'theme.label': 'Thème',
   'theme.light': 'Clair',
@@ -370,6 +396,13 @@ const fr: Record<TranslationKey, string> = {
   'theme.system': 'Système',
 
   'locale.label': 'Langue',
+
+  'footer.forum': 'Forum',
+  'footer.community': 'Communauté',
+  'footer.repository': 'Code source',
+  'footer.backToTop': 'Retour en haut',
+  'footer.copyright': '© {year} Trinity Nexus',
+  'footer.builtBy': 'Créé et animé par celles et ceux qui jouent ici.',
 
   'home.heading': 'Bienvenue sur Trinity Nexus',
   'home.subheading':

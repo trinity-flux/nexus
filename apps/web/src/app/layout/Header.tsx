@@ -17,6 +17,8 @@ import { UserMenu } from '@/features/auth';
 import { LOCALE_NAMES, LOCALES } from '@/shared/i18n/locales';
 import { useI18n } from '@/shared/i18n/useI18n';
 
+import { MobileNav } from './MobileNav';
+
 const SEARCH_INPUT_ID = 'header-search';
 
 export function Header() {
@@ -25,17 +27,22 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-border-default border-b bg-bg/85 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-5xl items-center gap-4 px-4 sm:px-6">
+      <div className="mx-auto flex h-16 max-w-5xl items-center gap-2 px-4 sm:gap-4 sm:px-6">
+        {/* First in the source order as well as on screen: on a phone this is
+            the only way into the forum, so it must also be the first thing a
+            screen reader reaches after the skip link. */}
+        <MobileNav />
+
         <NavLink className="shrink-0 font-semibold text-fg tracking-tight" to="/">
           {t('app.name')}
         </NavLink>
 
-        <nav aria-label={t('nav.categories')} className="hidden items-center gap-1 sm:flex">
+        <nav aria-label={t('nav.mainNavigation')} className="hidden items-center gap-1 sm:flex">
           <HeaderLink to="/">{t('nav.home')}</HeaderLink>
           <HeaderLink to="/c">{t('nav.categories')}</HeaderLink>
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-1 sm:gap-2">
           <div className="relative hidden md:block">
             {/* The association is spelled out with htmlFor/id rather than by
                 nesting the input inside the label: a linter cannot see through
@@ -56,9 +63,17 @@ export function Header() {
             />
           </div>
 
+          {/* Hidden on a phone, where the same two settings live in the
+              navigation drawer. Five controls in a 375px bar means five
+              controls too small to hit. */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button aria-label={t('locale.label')} size="icon-sm" variant="ghost">
+              <Button
+                aria-label={t('locale.label')}
+                className="hidden sm:inline-flex"
+                size="icon-sm"
+                variant="ghost"
+              >
                 <Languages aria-hidden="true" className="size-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -80,7 +95,12 @@ export function Header() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button aria-label={t('theme.label')} size="icon-sm" variant="ghost">
+              <Button
+                aria-label={t('theme.label')}
+                className="hidden sm:inline-flex"
+                size="icon-sm"
+                variant="ghost"
+              >
                 <Sun aria-hidden="true" className="size-4 dark:hidden" />
                 <Moon aria-hidden="true" className="hidden size-4 dark:block" />
               </Button>

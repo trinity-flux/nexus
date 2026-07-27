@@ -3,6 +3,7 @@ import { Outlet } from 'react-router';
 
 import { useI18n } from '@/shared/i18n/useI18n';
 
+import { Footer } from './Footer';
 import { Header } from './Header';
 
 const MAIN_ID = 'main-content';
@@ -18,16 +19,19 @@ export function AppLayout() {
 
       <Header />
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6" id={MAIN_ID}>
+      {/* `tabIndex={-1}` is what makes the skip link and the footer's "back to
+          top" actually move focus. Without it the browser scrolls the landmark
+          into view but leaves focus where it was, so the next Tab returns the
+          keyboard user to the header they were trying to skip. */}
+      <main
+        className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6"
+        id={MAIN_ID}
+        tabIndex={-1}
+      >
         <Outlet />
       </main>
 
-      <footer className="border-border-default border-t">
-        <div className="mx-auto flex max-w-5xl flex-col gap-1 px-4 py-6 text-fg-subtle text-sm sm:px-6">
-          <span>{t('app.name')}</span>
-          <span>{t('app.tagline')}</span>
-        </div>
-      </footer>
+      <Footer mainId={MAIN_ID} />
     </div>
   );
 }

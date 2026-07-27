@@ -6,6 +6,8 @@ import { Link, useParams } from 'react-router';
 import { useI18n } from '@/shared/i18n/useI18n';
 
 import { loadTopics } from '../application/forumCommands';
+import { ForumBreadcrumbs } from './ForumBreadcrumbs';
+import { useCategory } from './useCategory';
 import { useForumDispatch, useForumSelector } from './useForum';
 
 export function CategoryPage() {
@@ -15,9 +17,7 @@ export function CategoryPage() {
 
   const sort = useForumSelector((forum) => forum.topics.sort);
   const bucket = useForumSelector((forum) => forum.topics.byCategory[categorySlug]);
-  const category = useForumSelector((forum) =>
-    forum.categories.items.find((entry) => entry.slug === categorySlug),
-  );
+  const category = useCategory(categorySlug);
   const error = useForumSelector((forum) => forum.error);
 
   useEffect(() => {
@@ -42,6 +42,8 @@ export function CategoryPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      <ForumBreadcrumbs current={category?.name ?? categorySlug} />
+
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="font-semibold text-2xl text-fg tracking-tight">

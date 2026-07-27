@@ -1,13 +1,15 @@
 import { ErrorState } from '@trinity-nexus/ui';
 import { useEffect } from 'react';
-import { Link, Navigate, useNavigate, useParams } from 'react-router';
+import { Navigate, useNavigate, useParams } from 'react-router';
 
 import { useAuth } from '@/features/auth';
 import { useI18n } from '@/shared/i18n/useI18n';
 
-import { createTopic, loadCategories } from '../application/forumCommands';
+import { createTopic } from '../application/forumCommands';
 import { forumActions } from '../application/forumSlice';
 import { Composer } from './Composer';
+import { ForumBreadcrumbs } from './ForumBreadcrumbs';
+import { useCategory } from './useCategory';
 import { useForumDispatch, useForumSelector } from './useForum';
 
 export function NewTopicPage() {
@@ -19,18 +21,8 @@ export function NewTopicPage() {
 
   const submitting = useForumSelector((forum) => forum.submitting);
   const createdSlug = useForumSelector((forum) => forum.createdTopicSlug);
-  const category = useForumSelector((forum) =>
-    forum.categories.items.find((entry) => entry.slug === categorySlug),
-  );
+  const category = useCategory(categorySlug);
   const error = useForumSelector((forum) => forum.error);
-
-  // The category list may not be loaded if this page was opened directly from
-  // a bookmark rather than reached by navigation.
-  useEffect(() => {
-    if (!category) {
-      dispatch(loadCategories());
-    }
-  }, [dispatch, category]);
 
   // Navigation happens here rather than in the epic: an epic that knows about
   // the router is an epic that cannot be tested without one.
@@ -57,10 +49,11 @@ export function NewTopicPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <Link className="text-fg-subtle text-sm hover:text-fg" to={`/c/${categorySlug}`}>
-          ← {category?.name ?? categorySlug}
-        </Link>
+      <div className="flex flex-col gap-2">
+        <ForumBreadcrumbs
+          category={{ slug: categorySlug, name: category?.name ?? categorySlug }}
+          current={t('topics.new')}
+        />
         <h1 className="font-semibold text-2xl text-fg tracking-tight">{t('topics.new')}</h1>
       </div>
 

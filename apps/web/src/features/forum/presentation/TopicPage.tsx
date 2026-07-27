@@ -10,7 +10,9 @@ import { loadThread, replyToTopic, stopWatching, watchThread } from '../applicat
 import type { Post } from '../domain/entities';
 import { buildThreadTree, type ThreadNode } from '../domain/threadTree';
 import { Composer } from './Composer';
+import { ForumBreadcrumbs } from './ForumBreadcrumbs';
 import { MarkdownBody } from './MarkdownBody';
+import { useCategory } from './useCategory';
 import { useForumDispatch, useForumSelector } from './useForum';
 
 export function TopicPage() {
@@ -19,6 +21,7 @@ export function TopicPage() {
   const { t, formatRelativeTime } = useI18n();
 
   const { topic, posts, status } = useForumSelector((forum) => forum.thread);
+  const category = useCategory(categorySlug);
   const error = useForumSelector((forum) => forum.error);
 
   useEffect(() => {
@@ -58,9 +61,12 @@ export function TopicPage() {
   return (
     <article className="flex flex-col gap-6">
       <header className="flex flex-col gap-2">
-        <Link className="text-fg-subtle text-sm hover:text-fg" to={`/c/${categorySlug}`}>
-          ← {categorySlug}
-        </Link>
+        {/* Replaces a single back-link that was labelled with the raw category
+            slug — "wow-general" — and gave no clue how deep the page sat. */}
+        <ForumBreadcrumbs
+          category={{ slug: categorySlug, name: category?.name ?? categorySlug }}
+          current={topic.title}
+        />
 
         <h1 className="flex flex-wrap items-center gap-2 font-semibold text-2xl text-fg tracking-tight">
           {topic.isPinned ? <Pin aria-hidden="true" className="size-4 text-accent-text" /> : null}

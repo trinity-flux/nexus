@@ -421,6 +421,37 @@
     }
   }
 
+  /*
+   * Edge-anchored panels. Distinct from the two above because a drawer travels
+   * its own full width rather than a short offset, and it must not fade: a
+   * navigation panel that dissolves reads as an error, while one that slides
+   * back to the edge it came from reads as "put away". Opacity is left alone
+   * for the same reason — the overlay behind it already handles the dimming.
+   */
+  @keyframes sheet-in-left {
+    from {
+      transform: translateX(-100%);
+    }
+  }
+
+  @keyframes sheet-out-left {
+    to {
+      transform: translateX(-100%);
+    }
+  }
+
+  @keyframes sheet-in-right {
+    from {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes sheet-out-right {
+    to {
+      transform: translateX(100%);
+    }
+  }
+
   .animate-fade-in {
     animation: fade-in var(--duration-base) var(--ease-out);
   }
@@ -451,6 +482,22 @@
 
   .animate-slide-out-right {
     animation: slide-out-to-right var(--duration-fast) var(--ease-in-out);
+  }
+
+  .animate-sheet-in-left {
+    animation: sheet-in-left var(--duration-base) var(--ease-out);
+  }
+
+  .animate-sheet-out-left {
+    animation: sheet-out-left var(--duration-fast) var(--ease-in-out);
+  }
+
+  .animate-sheet-in-right {
+    animation: sheet-in-right var(--duration-base) var(--ease-out);
+  }
+
+  .animate-sheet-out-right {
+    animation: sheet-out-right var(--duration-fast) var(--ease-in-out);
   }
 
   /* Visible to screen readers, invisible on screen. Used for the skip link,

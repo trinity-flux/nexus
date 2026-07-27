@@ -6,6 +6,7 @@ import { Link } from 'react-router';
 import { useI18n } from '@/shared/i18n/useI18n';
 
 import { loadCategories } from '../application/forumCommands';
+import { ForumBreadcrumbs } from './ForumBreadcrumbs';
 import { useForumDispatch, useForumSelector } from './useForum';
 
 export function CategoriesPage() {
@@ -45,6 +46,8 @@ export function CategoriesPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      <ForumBreadcrumbs />
+
       <h1 className="font-semibold text-2xl text-fg tracking-tight">{t('categories.heading')}</h1>
 
       <ul className="flex flex-col gap-3">

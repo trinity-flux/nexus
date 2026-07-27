@@ -1,5 +1,12 @@
 export { Avatar, type AvatarProps, type AvatarSize } from './components/Avatar';
 export { Badge, type BadgeProps, badgeVariants } from './components/Badge';
+export {
+  BreadcrumbPage,
+  type BreadcrumbPageProps,
+  Breadcrumbs,
+  type BreadcrumbsProps,
+  breadcrumbLinkClassName,
+} from './components/Breadcrumbs';
 export { Button, type ButtonProps, buttonVariants } from './components/Button';
 export { Card, type CardProps } from './components/Card';
 export {
@@ -25,6 +32,14 @@ export { ErrorState, type ErrorStateProps } from './components/ErrorState';
 export { Field, type FieldProps, type FieldRenderProps } from './components/Field';
 export { Input, type InputProps } from './components/Input';
 export { Separator, type SeparatorProps } from './components/Separator';
+export {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  type SheetContentProps,
+  type SheetProps,
+  SheetTrigger,
+} from './components/Sheet';
 export { Skeleton, type SkeletonProps } from './components/Skeleton';
 export { SkipLink, type SkipLinkProps } from './components/SkipLink';
 export { Spinner, type SpinnerProps } from './components/Spinner';
