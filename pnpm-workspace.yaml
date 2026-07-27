@@ -1,0 +1,25 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+# Every workspace package pins the same version of these, so a duplicate React
+# in the bundle — the classic cause of "Invalid hook call" — cannot happen.
+catalog:
+  react: 19.2.8
+  react-dom: 19.2.8
+  '@types/node': 26.1.1
+  '@types/react': 19.2.17
+  '@types/react-dom': 19.2.3
+  typescript: 7.0.2
+  vite: 8.1.5
+  vitest: 4.1.10
+
+# pnpm 11 refuses packages published in the last few days by default. Most
+# npm supply-chain compromises are caught and unpublished within that window,
+# so waiting costs nothing and skips the worst of them. Nothing is excluded
+# here on purpose: npm-check-updates runs through `pnpm dlx`, so a maintenance
+# tool never lands in the lockfile just to weaken this gate.
+strictPeerDependencies: false
+autoInstallPeers: true
+linkWorkspacePackages: true
+preferWorkspacePackages: true

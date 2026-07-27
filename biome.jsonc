@@ -1,0 +1,366 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "files": {
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/coverage",
+      "!**/node_modules",
+      "!**/.turbo",
+      "!**/*.tsbuildinfo",
+      "!pnpm-lock.yaml"
+    ]
+  },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    // Wider than the 80 used in trinity-admin: this codebase is mostly JSX with
+    // Tailwind class lists, and at 80 nearly every element wraps onto four
+    // lines, which hurts readability more than the long lines do.
+    "lineWidth": 100
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
+  "css": {
+    // index.css is Tailwind v4: @theme, @layer, @apply, @custom-variant.
+    // Without this Biome cannot parse it and reports every directive as a
+    // syntax error.
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all",
+      "arrowParentheses": "always"
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+
+      "a11y": {
+        // Accessibility is a stated pillar of this project, so the whole group
+        // is on and every rule is an error. A warning in a long list is a
+        // warning nobody reads.
+        "preset": "recommended",
+        "noStaticElementInteractions": "error",
+        "useKeyWithClickEvents": "error",
+        "useSemanticElements": "error",
+        "useFocusableInteractive": "error",
+        "useAriaPropsForRole": "error",
+        "useButtonType": "error",
+        "noAutofocus": "error",
+        "useAltText": "error",
+        "noSvgWithoutTitle": "off" // Icons are decorative and paired with a
+        // visible or screen-reader-only label at the call site; a title on
+        // every lucide icon would make screen readers announce it twice.
+      },
+
+      "correctness": {
+        "noUnusedImports": "error",
+        "noUnusedVariables": "error",
+        "noUnusedFunctionParameters": "error",
+        "useExhaustiveDependencies": "error",
+        "useHookAtTopLevel": "error",
+        // `noUnresolvedImports` is off, and not by preference. It resolves
+        // named exports statically, which it cannot do through a CommonJS
+        // module — so `import { StrictMode } from 'react'` is reported as
+        // missing. React 19 still ships CJS, which makes the rule fire on the
+        // most common import in the codebase. `noUndeclaredDependencies` below
+        // still catches the case that actually bites: importing a package that
+        // is not in this workspace's package.json.
+        "noUnresolvedImports": "off",
+        "noUndeclaredDependencies": "error"
+      },
+
+      "suspicious": {
+        "noExplicitAny": "error",
+        "noConsole": {
+          "level": "error",
+          "options": { "allow": ["warn", "error"] }
+        },
+        "noDoubleEquals": "error",
+        "noArrayIndexKey": "error",
+        // A cycle between modules is the first symptom of a layering mistake,
+        // and it breaks tree shaking long before it breaks the build.
+        "noImportCycles": "error"
+      },
+
+      "style": {
+        "useConst": "error",
+        "useImportType": "error",
+        "useExportType": "error",
+        "noNonNullAssertion": "error",
+        "useNodejsImportProtocol": "error",
+        "noParameterAssign": "error",
+        "useFilenamingConvention": {
+          "level": "error",
+          "options": {
+            "requireAscii": true,
+            "filenameCases": ["camelCase", "PascalCase", "kebab-case"]
+          }
+        },
+
+        // The dependency rule of Clean Architecture, enforced.
+        //
+        // Two conventions make this expressible as plain path patterns:
+        //   1. Inside a feature, modules import each other RELATIVELY.
+        //   2. Across features, code imports the barrel: `@/features/<name>`.
+        //
+        // So a deep alias import into another feature is always a violation,
+        // and the per-layer overrides at the bottom of this file forbid the
+        // relative paths that would point outward.
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "patterns": [
+              {
+                "group": [
+                  "@/features/*/domain/**",
+                  "@/features/*/application/**",
+                  "@/features/*/infrastructure/**",
+                  "@/features/*/presentation/**"
+                ],
+                "message": "Import another feature through its barrel (`@/features/<name>`), not by reaching into its layers. Inside the same feature, use a relative path."
+              },
+              {
+                "group": ["@/app/**"],
+                "message": "`app/` is the composition root: it wires features together, nothing imports back out of it."
+              }
+            ]
+          }
+        }
+      },
+
+      "nursery": {
+        // Sorts Tailwind classes, which is what prettier-plugin-tailwindcss
+        // did before Biome replaced it. Keeps diffs on className readable.
+        "useSortedClasses": {
+          "level": "error",
+          "options": {
+            "attributes": ["className"],
+            "functions": ["cn", "clsx", "cva"]
+          }
+        },
+        // A promise dropped on the floor swallows its rejection. Both of these
+        // are type-aware and need no extra configuration in Biome 2.
+        "noFloatingPromises": "error",
+        "noMisusedPromises": "error"
+      },
+
+      "performance": {
+        "preset": "recommended"
+      }
+    }
+  },
+
+  "overrides": [
+    {
+      // TypeScript configs carry the reasoning for each strictness flag in
+      // comments. Biome recognises tsconfig.json by name, but not the shared
+      // bases these extend from, so it is spelled out here.
+      "includes": ["**/tsconfig*.json", "packages/config/*.json"],
+      "json": {
+        "parser": {
+          "allowComments": true
+        }
+      }
+    },
+    {
+      // The reduced-motion block in the token sheet has to beat every other
+      // declaration on the page, which is exactly what !important is for. This
+      // is the one file where the rule would be wrong.
+      "includes": ["packages/ui/src/styles/theme.css"],
+      "linter": {
+        "rules": {
+          "complexity": { "noImportantStyles": "off" }
+        }
+      }
+    },
+    {
+      // The domain layer. It holds the rules that must outlive React and
+      // Supabase, so it may not import either — nor any layer above it.
+      "includes": ["apps/*/src/features/*/domain/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/application/**",
+                      "**/infrastructure/**",
+                      "**/presentation/**",
+                      "react",
+                      "react-dom",
+                      "react-redux",
+                      "react-router",
+                      "@reduxjs/toolkit",
+                      "@supabase/**",
+                      "@radix-ui/**",
+                      "lucide-react"
+                    ],
+                    "message": "The domain must not depend on a framework, a backend SDK, or an outer layer. Declare a port here and implement it in infrastructure/. (RxJS is allowed: ports describe server-pushed streams and Observable is the type for that.)"
+                  },
+                  {
+                    "group": [
+                      "@/features/*/domain/**",
+                      "@/features/*/application/**",
+                      "@/features/*/infrastructure/**",
+                      "@/features/*/presentation/**"
+                    ],
+                    "message": "Import another feature through its barrel (`@/features/<name>`), not by reaching into its layers. Inside the same feature, use a relative path. Biome overrides REPLACE rule options rather than merge them, which is why this group is repeated in every layer."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      // Use cases and state. May orchestrate the domain; may not know how data
+      // is fetched or how it is drawn.
+      "includes": ["apps/*/src/features/*/application/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/infrastructure/**",
+                      "**/presentation/**",
+                      "react",
+                      "react-dom",
+                      "react-router",
+                      "@supabase/**",
+                      "@radix-ui/**",
+                      "lucide-react"
+                    ],
+                    "message": "The application layer holds use cases, not UI or transport. React belongs in presentation/, Supabase in infrastructure/. Depend on the port, not the adapter."
+                  },
+                  {
+                    "group": [
+                      "@/features/*/domain/**",
+                      "@/features/*/application/**",
+                      "@/features/*/infrastructure/**",
+                      "@/features/*/presentation/**"
+                    ],
+                    "message": "Import another feature through its barrel (`@/features/<name>`), not by reaching into its layers. Inside the same feature, use a relative path. Biome overrides REPLACE rule options rather than merge them, which is why this group is repeated in every layer."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      // Adapters. They implement domain ports; they never reach up into state
+      // or UI.
+      "includes": ["apps/*/src/features/*/infrastructure/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/application/**",
+                      "**/presentation/**",
+                      "react",
+                      "react-dom",
+                      "@radix-ui/**"
+                    ],
+                    "message": "An adapter implements a domain port. It must not depend on the store or on components."
+                  },
+                  {
+                    "group": [
+                      "@/features/*/domain/**",
+                      "@/features/*/application/**",
+                      "@/features/*/infrastructure/**",
+                      "@/features/*/presentation/**"
+                    ],
+                    "message": "Import another feature through its barrel (`@/features/<name>`), not by reaching into its layers. Inside the same feature, use a relative path. Biome overrides REPLACE rule options rather than merge them, which is why this group is repeated in every layer."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      // Shared code is imported by everything, so it may depend on nothing but
+      // itself — otherwise "shared" becomes a back door for a cycle.
+      "includes": ["apps/*/src/shared/**", "packages/*/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@/features/**", "@/app/**"],
+                    "message": "shared/ is the base of the dependency graph. If this needs a feature, it is not shared code."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      // Tests build fixtures fast and assert on internals on purpose.
+      "includes": ["**/*.test.ts", "**/*.test.tsx", "**/src/testing/**"],
+      "linter": {
+        "rules": {
+          "suspicious": { "noExplicitAny": "off" },
+          "style": { "noNonNullAssertion": "off", "noRestrictedImports": "off" }
+        }
+      }
+    },
+    {
+      // Build tooling runs in Node and legitimately writes to stdout.
+      //
+      // `useLiteralKeys` is off here because it contradicts the type checker:
+      // `noPropertyAccessFromIndexSignature` in the shared tsconfig requires
+      // `process.env['ANALYZE']`, and this rule wants `process.env.ANALYZE`.
+      // The tsconfig flag is the one worth keeping — it is what makes a typo
+      // in an environment variable name a compile error.
+      "includes": ["**/*.config.ts", "**/scripts/**"],
+      "linter": {
+        "rules": {
+          "suspicious": { "noConsole": "off" },
+          "complexity": { "useLiteralKeys": "off" },
+          "style": { "noRestrictedImports": "off" }
+        }
+      }
+    }
+  ]
+}

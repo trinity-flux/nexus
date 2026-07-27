@@ -1,0 +1,255 @@
+/*
+ * Trinity Nexus design tokens.
+ *
+ * Two layers on purpose:
+ *
+ *   1. `:root` / `.dark` declare raw values. These are the only place a hex
+ *      code appears in the whole codebase.
+ *   2. `@theme inline` maps them onto Tailwind's utility namespace, so
+ *      `bg-surface` resolves to `var(--surface)` and follows the theme
+ *      automatically. No `dark:` variant is needed on ordinary colour
+ *      utilities, which removes a whole category of "looks wrong in light
+ *      mode" bugs.
+ *
+ * Every foreground/background pair declared here is asserted at 4.5:1 or
+ * better by `src/styles/theme.contrast.test.ts`, which reads this file.
+ * Changing a value and breaking contrast fails the test suite.
+ *
+ * Tailwind itself is imported by the consuming app, not here, so this file
+ * stays a pure token sheet that can be read and parsed on its own.
+ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Surfaces, light theme. */
+  --bg: #ffffff;
+  --surface: #f8fafc;
+  --surface-raised: #f1f5f9;
+  --overlay: rgb(15 23 42 / 0.45);
+
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+
+  /* Text. Three levels is enough hierarchy; a fourth always ends up failing
+     contrast somewhere. */
+  --fg: #0f172a;
+  --fg-muted: #475569;
+  /* Slate-500 (#64748b) is the obvious choice here and fails: 4.34:1 against
+     --surface-raised. This is two steps darker so the tertiary level holds up
+     on every surface, not just on white. */
+  --fg-subtle: #5b6b80;
+
+  /* Brand violet. Two tokens because a colour that passes as a button
+     background rarely passes as body text, and vice versa. */
+  --primary: #6d28d9;
+  --primary-fg: #ffffff;
+  --primary-text: #6d28d9;
+  --primary-subtle: #f5f3ff;
+
+  /* Amber, for highlights: pinned threads, staff badges, vote counts. */
+  --accent: #f59e0b;
+  --accent-fg: #0f172a;
+  --accent-text: #b45309;
+
+  --success: #15803d;
+  --success-fg: #ffffff;
+  --success-text: #15803d;
+
+  --warning: #b45309;
+  --warning-fg: #ffffff;
+  --warning-text: #b45309;
+
+  --danger: #dc2626;
+  --danger-fg: #ffffff;
+  --danger-text: #b91c1c;
+
+  --ring: #7c3aed;
+
+  /* Radii. */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* Elevation. Deliberately soft: hard shadows read as cheap on a dark UI. */
+  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.06);
+  --shadow-md: 0 4px 12px -2px rgb(15 23 42 / 0.1);
+  --shadow-lg: 0 12px 32px -8px rgb(15 23 42 / 0.18);
+
+  /* Motion. The 150-300ms band is where a transition reads as responsive
+     rather than sluggish or absent. */
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 280ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark {
+  /* Not pure black: on OLED panels #000 smears during scroll, and the lack of
+     any elevation difference flattens the whole interface. */
+  --bg: #0b1120;
+  --surface: #131a2a;
+  --surface-raised: #1b2437;
+  --overlay: rgb(2 6 23 / 0.7);
+
+  --border: #253046;
+  --border-strong: #3a4761;
+
+  --fg: #f1f5f9;
+  --fg-muted: #a3b1c6;
+  --fg-subtle: #8494ab;
+
+  --primary: #7c3aed;
+  --primary-fg: #ffffff;
+  --primary-text: #c4b5fd;
+  --primary-subtle: #1e1b4b;
+
+  --accent: #f59e0b;
+  --accent-fg: #0b1120;
+  --accent-text: #fbbf24;
+
+  /* Bright fill with dark text, the same shape as --accent. White on a green
+     light enough to read as "success" on a dark page only reaches 3.3:1. */
+  --success: #22c55e;
+  --success-fg: #0b1120;
+  --success-text: #4ade80;
+
+  --warning: #d97706;
+  --warning-fg: #0b1120;
+  --warning-text: #fbbf24;
+
+  --danger: #dc2626;
+  --danger-fg: #ffffff;
+  --danger-text: #fca5a5;
+
+  --ring: #a78bfa;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.6);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-overlay: var(--overlay);
+
+  --color-border-default: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+
+  --color-primary: var(--primary);
+  --color-primary-fg: var(--primary-fg);
+  --color-primary-text: var(--primary-text);
+  --color-primary-subtle: var(--primary-subtle);
+
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-text: var(--accent-text);
+
+  --color-success: var(--success);
+  --color-success-fg: var(--success-fg);
+  --color-success-text: var(--success-text);
+
+  --color-warning: var(--warning);
+  --color-warning-fg: var(--warning-fg);
+  --color-warning-text: var(--warning-text);
+
+  --color-danger: var(--danger);
+  --color-danger-fg: var(--danger-fg);
+  --color-danger-text: var(--danger-text);
+
+  --color-ring: var(--ring);
+
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Keeps a jumped-to heading clear of the sticky header instead of hidden
+       underneath it. */
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    /* 1.6 rather than Tailwind's 1.5: this is a forum, and body copy here is
+       read in long paragraphs. */
+    line-height: 1.6;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* A visible focus ring is not optional. It is scoped to :focus-visible so
+     mouse users never see it, which is the reason people remove it. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  ::selection {
+    background-color: var(--primary);
+    color: var(--primary-fg);
+  }
+
+  /* Honours the OS-level request to stop moving things. Vestibular disorders
+     make large transitions genuinely unpleasant, and the setting exists to
+     say so. Motion is reduced to near-zero rather than removed, because
+     `transitionend` handlers still need to fire. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      /* The !important here is the point, and biome.jsonc exempts this file
+         because of it: an accessibility preference the cascade can outvote is
+         not a preference. */
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* Visible to screen readers, invisible on screen. Used for the skip link,
+     icon-only button labels and live-region announcements. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}

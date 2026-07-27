@@ -1,0 +1,20 @@
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
+import './index.css';
+
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+
+import { App } from './app/App';
+
+const container = document.getElementById('root');
+
+if (!container) {
+  throw new Error('Missing #root element: index.html and main.tsx have drifted apart.');
+}
+
+createRoot(container).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);

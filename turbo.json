@@ -1,0 +1,41 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "ui": "stream",
+  "globalDependencies": ["biome.jsonc", "tsconfig.base.json"],
+  "globalEnv": ["NODE_ENV", "CI", "ANALYZE"],
+  "tasks": {
+    "build": {
+      // A package is built only after everything it depends on is, so
+      // apps/web never links against a stale packages/ui.
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env.production", "!**/*.test.{ts,tsx}"],
+      "outputs": ["dist/**"],
+      "env": ["VITE_*"]
+    },
+    "typecheck": {
+      // `tsc --noEmit` produces nothing to cache; what turbo caches here is
+      // the verdict, so an unchanged package is not re-checked.
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "test:coverage": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
+    },
+    "test:watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "clean": {
+      "cache": false
+    }
+  }
+}

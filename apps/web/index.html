@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Trinity Nexus — Community</title>
+    <meta
+      name="description"
+      content="The official Trinity Nexus community: guides, discussion and announcements for World of Warcraft and beyond."
+    />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+
+    <!--
+      Runs before first paint so the page never renders in the wrong theme and
+      then snaps to the right one. Deliberately inline and dependency-free: a
+      separate request here would reintroduce the flash it exists to prevent.
+    -->
+    <script>
+      (() => {
+        try {
+          const stored = localStorage.getItem('trinity-nexus.theme');
+          const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+          const explicit = stored === 'light' || stored === 'dark';
+          const theme = explicit ? stored : prefersLight ? 'light' : 'dark';
+          document.documentElement.classList.toggle('dark', theme === 'dark');
+          document.documentElement.style.colorScheme = theme;
+        } catch {
+          /* Private-mode browsers throw on localStorage. The dark default in
+             the class attribute above already covers us. */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <p>Trinity Nexus needs JavaScript enabled to load the community forum.</p>
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

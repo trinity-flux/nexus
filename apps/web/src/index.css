@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@import "@trinity-nexus/ui/styles.css";
+
+/*
+ * Tailwind v4 discovers the classes to generate by scanning source files, and
+ * it only walks up from this stylesheet by default. Without this the design
+ * system's own components would render unstyled: their classes live outside
+ * this app's directory tree.
+ */
+@source "../../../packages/ui/src";

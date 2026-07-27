@@ -1,0 +1,34 @@
+{
+  "name": "trinity-nexus",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Official community portal and forum for Trinity Nexus.",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@11.17.0",
+  "engines": {
+    "node": ">=22.12.0",
+    "pnpm": ">=11"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch",
+    "test:coverage": "turbo run test:coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "ci": "turbo run typecheck test build && pnpm lint",
+    "deps:check": "pnpm dlx npm-check-updates --deep --format group",
+    "deps:check:minor": "pnpm dlx npm-check-updates --deep --format group --target minor",
+    "deps:upgrade": "pnpm dlx npm-check-updates --deep -u && pnpm install",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.5",
+    "turbo": "2.10.7",
+    "typescript": "7.0.2"
+  }
+}

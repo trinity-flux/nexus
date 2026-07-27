@@ -1,0 +1,55 @@
+{
+  "name": "@trinity-nexus/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Trinity Nexus design system: tokens and accessible primitives.",
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles.css": "./src/styles/theme.css",
+    "./testing/setup": "./src/testing/setup.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "clean": "rm -rf node_modules coverage *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@radix-ui/react-avatar": "1.2.6",
+    "@radix-ui/react-dialog": "1.1.23",
+    "@radix-ui/react-dropdown-menu": "2.1.24",
+    "@radix-ui/react-popover": "1.1.23",
+    "@radix-ui/react-tabs": "1.1.21",
+    "@radix-ui/react-toast": "1.2.23",
+    "@radix-ui/react-tooltip": "1.2.16",
+    "clsx": "2.1.1",
+    "lucide-react": "1.27.0",
+    "tailwind-merge": "3.6.0"
+  },
+  "peerDependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "10.4.1",
+    "@testing-library/jest-dom": "7.0.0",
+    "@testing-library/react": "16.3.2",
+    "@testing-library/user-event": "14.6.1",
+    "@trinity-nexus/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitest/coverage-v8": "4.1.10",
+    "jsdom": "29.1.1",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -1,0 +1,94 @@
+/// <reference types="vitest/config" />
+import { fileURLToPath, URL } from 'node:url';
+
+import tailwindcss from '@tailwindcss/vite';
+import react from '@vitejs/plugin-react';
+import { visualizer } from 'rollup-plugin-visualizer';
+import { defineConfig, loadEnv, type PluginOption } from 'vite';
+
+/**
+ * GitHub Pages serves this repository as a *project* page, so the app lives
+ * under a sub-path rather than at the domain root. Everything that builds a URL
+ * — the router basename, canonical tags, the sitemap — reads this single value,
+ * so pointing the site at a custom domain later means setting it to "/".
+ */
+const DEFAULT_BASE_PATH = '/trinitynexus.github.io/';
+
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), 'VITE_');
+  const base = env['VITE_BASE_PATH'] ?? DEFAULT_BASE_PATH;
+
+  const plugins: PluginOption[] = [react(), tailwindcss()];
+
+  if (process.env['ANALYZE'] === 'true') {
+    plugins.push(
+      visualizer({ filename: 'dist/stats.html', gzipSize: true, brotliSize: true }) as PluginOption,
+    );
+  }
+
+  return {
+    base,
+    plugins,
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
+      },
+    },
+    build: {
+      target: 'es2023',
+      sourcemap: true,
+      // A stricter budget than the 500 kB default: this is a content site, and
+      // a chunk over 300 kB on a mid-range phone is a second of parse time.
+      chunkSizeWarningLimit: 300,
+      rollupOptions: {
+        output: {
+          // Vite 8 bundles with Rolldown, where the object form of
+          // `manualChunks` no longer exists. `advancedChunks` is the native
+          // replacement and matches on resolved module id.
+          //
+          // Splitting these three out means a release that only touches app
+          // code leaves the vendor chunks byte-identical, so returning
+          // visitors re-download the app chunk and nothing else.
+          advancedChunks: {
+            groups: [
+              {
+                name: 'vendor-react',
+                test: /[\\/]node_modules[\\/](react|react-dom|react-router|scheduler)[\\/]/,
+              },
+              {
+                name: 'vendor-state',
+                test: /[\\/]node_modules[\\/](@reduxjs|react-redux|redux|redux-observable|rxjs|immer|reselect)[\\/]/,
+              },
+              {
+                name: 'vendor-supabase',
+                test: /[\\/]node_modules[\\/]@supabase[\\/]/,
+              },
+            ],
+          },
+        },
+      },
+    },
+    server: {
+      port: 5173,
+    },
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: ['@trinity-nexus/ui/testing/setup'],
+      css: false,
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'lcov'],
+        // Domain and application layers hold the rules worth protecting; the
+        // presentation layer is covered by behavioural tests, not line counts.
+        include: ['src/features/**/domain/**', 'src/features/**/application/**', 'src/shared/**'],
+        thresholds: {
+          statements: 80,
+          branches: 75,
+          functions: 80,
+          lines: 80,
+        },
+      },
+    },
+  };
+});

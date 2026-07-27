@@ -1,1 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+*.local
+
+# Tooling caches
+.turbo/
+coverage/
+.vite/
+*.tsbuildinfo
+
+# Environment. Only .env.example is committed: it documents the variables
+# without carrying a single value.
+.env
+.env.*
+!.env.example
+
+# Supabase CLI local state
+supabase/.branches/
+supabase/.temp/
+
+# Editors and OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Legacy asset from the 2017 prototype
 developer.png
