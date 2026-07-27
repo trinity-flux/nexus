@@ -29,5 +29,12 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 
+# Only the root lockfile is committed. A stray one inside a package means
+# somebody ran npm or pnpm from the wrong directory, and it would pin a second,
+# conflicting dependency tree.
+apps/*/pnpm-lock.yaml
+packages/*/pnpm-lock.yaml
+**/package-lock.json
+
 # Legacy asset from the 2017 prototype
 developer.png

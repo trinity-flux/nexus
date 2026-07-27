@@ -72,6 +72,15 @@
         // every lucide icon would make screen readers announce it twice.
       },
 
+      "complexity": {
+        // Off repo-wide, not by preference: it contradicts the type checker.
+        // `noPropertyAccessFromIndexSignature` in the shared tsconfig requires
+        // bracket access on index signatures, and this rule wants dot access.
+        // The tsconfig flag is the one worth keeping — it turns a typo in an
+        // environment variable or a translation key into a compile error.
+        "useLiteralKeys": "off"
+      },
+
       "correctness": {
         "noUnusedImports": "error",
         "noUnusedVariables": "error",

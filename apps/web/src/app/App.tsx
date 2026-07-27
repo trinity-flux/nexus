@@ -1,17 +1,42 @@
-import { env } from '@/shared/config/env';
+import { ThemeProvider, ToastProvider, TooltipProvider } from '@trinity-nexus/ui';
+import { useMemo } from 'react';
+import { Provider as StoreProvider } from 'react-redux';
+import { RouterProvider } from 'react-router';
+
+import { I18nProvider } from '@/shared/i18n/I18nProvider';
+
+import { AppErrorBoundary } from './AppErrorBoundary';
+import { createContainer } from './di/container';
+import { RootErrorFallback } from './RootErrorFallback';
+import { createAppRouter } from './router';
+import { createStore } from './store/store';
 
 /**
- * Placeholder shell. The store, router, providers and layout land here in the
- * next phase; for now it exists so the toolchain has something real to build.
+ * The composition root.
+ *
+ * The container, the store and the router are built once and never rebuilt:
+ * `useMemo` with no dependencies rather than module-level constants, so a test
+ * can mount two independent apps without them sharing a store.
  */
 export function App() {
+  const { store, router } = useMemo(() => {
+    const container = createContainer();
+    return { store: createStore(container), router: createAppRouter() };
+  }, []);
+
   return (
-    <main className="mx-auto flex min-h-dvh max-w-2xl flex-col justify-center gap-4 px-6">
-      <h1 className="font-semibold text-3xl text-fg tracking-tight">Trinity Nexus</h1>
-      <p className="text-fg-muted">
-        The community portal is being built. Data source:{' '}
-        <code className="font-mono">{env.dataSource}</code>.
-      </p>
-    </main>
+    <AppErrorBoundary fallback={(retry) => <RootErrorFallback onRetry={retry} />}>
+      <I18nProvider>
+        <ThemeProvider>
+          <TooltipProvider delayDuration={300}>
+            <ToastProvider>
+              <StoreProvider store={store}>
+                <RouterProvider router={router} />
+              </StoreProvider>
+            </ToastProvider>
+          </TooltipProvider>
+        </ThemeProvider>
+      </I18nProvider>
+    </AppErrorBoundary>
   );
 }
