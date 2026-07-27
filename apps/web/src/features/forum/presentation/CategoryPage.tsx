@@ -58,7 +58,9 @@ export function CategoryPage() {
             {t('categories.locked')}
           </Badge>
         ) : (
-          <Button size="sm">{t('topics.new')}</Button>
+          <Button asChild size="sm">
+            <Link to={`/c/${categorySlug}/new`}>{t('topics.new')}</Link>
+          </Button>
         )}
       </header>
 

@@ -40,7 +40,7 @@ export function DropdownMenuContent({
   );
 }
 
-export interface DropdownMenuItemProps extends Omit<RadixMenu.DropdownMenuItemProps, 'asChild'> {
+export interface DropdownMenuItemProps extends RadixMenu.DropdownMenuItemProps {
   icon?: LucideIcon;
   /** Red styling for destructive actions, alongside the wording. */
   destructive?: boolean;
@@ -51,10 +51,12 @@ export function DropdownMenuItem({
   icon: Icon,
   destructive = false,
   className,
+  asChild = false,
   ...props
 }: DropdownMenuItemProps) {
   return (
     <RadixMenu.Item
+      asChild={asChild}
       className={cn(
         'flex cursor-pointer items-center gap-2 rounded-sm px-2 py-2 text-sm outline-none',
         'transition-colors duration-150',
@@ -69,8 +71,20 @@ export function DropdownMenuItem({
       )}
       {...props}
     >
-      {Icon ? <Icon aria-hidden="true" className="size-4 shrink-0" /> : null}
-      {children}
+      {/*
+        With asChild the item merges onto its child, which can hold only one
+        element — so the icon is rendered inside the child instead of beside
+        it. Slottable is not used here because a menu item's child is usually a
+        link whose own content we do not control.
+      */}
+      {asChild ? (
+        children
+      ) : (
+        <>
+          {Icon ? <Icon aria-hidden="true" className="size-4 shrink-0" /> : null}
+          {children}
+        </>
+      )}
     </RadixMenu.Item>
   );
 }

@@ -1,10 +1,28 @@
 import type { UnknownAction } from '@reduxjs/toolkit';
 import { combineEpics, type Epic, ofType } from 'redux-observable';
-import { catchError, from, map, mergeMap, of, switchMap, takeUntil } from 'rxjs';
+import {
+  catchError,
+  concatMap,
+  from,
+  map,
+  mergeMap,
+  of,
+  startWith,
+  switchMap,
+  takeUntil,
+} from 'rxjs';
 
-import { asTopicId } from '../domain/entities';
+import { asPostId, asTopicId } from '../domain/entities';
 import type { CategoryRepository, PostRepository, TopicRepository } from '../domain/ports';
-import { loadCategories, loadThread, loadTopics, stopWatching, watchThread } from './forumCommands';
+import {
+  createTopic,
+  loadCategories,
+  loadThread,
+  loadTopics,
+  replyToTopic,
+  stopWatching,
+  watchThread,
+} from './forumCommands';
 import { forumActions } from './forumSlice';
 
 /**
@@ -124,9 +142,63 @@ const watchThreadEpic: ForumEpic = (action$, _state$, { forum }) =>
     }),
   );
 
+/**
+ * Posting a topic.
+ *
+ * `concatMap`, not `switchMap`: a write is not a query. Cancelling a request
+ * that has already reached the server does not undo it, it only loses the
+ * answer — so a double submission would create two topics and the UI would
+ * know about neither.
+ */
+const createTopicEpic: ForumEpic = (action$, _state$, { forum }) =>
+  action$.pipe(
+    ofType(createTopic.type),
+    concatMap((action) => {
+      const { categorySlug, title, bodyMarkdown } = (action as ReturnType<typeof createTopic>)
+        .payload;
+
+      return from(
+        (async () => {
+          const category = await forum.categories.findBySlug(categorySlug);
+          if (!category) {
+            throw new Error(`No category called ${categorySlug}`);
+          }
+          return forum.topics.create({ categoryId: category.id, title, bodyMarkdown });
+        })(),
+      ).pipe(
+        map((topic) => forumActions.topicCreated({ categorySlug, topic })),
+        startWith(forumActions.writeStarted()),
+        catchError((error: unknown) => of(forumActions.requestFailed(describeError(error)))),
+      );
+    }),
+  );
+
+const replyEpic: ForumEpic = (action$, _state$, { forum }) =>
+  action$.pipe(
+    ofType(replyToTopic.type),
+    concatMap((action) => {
+      const { topicId, parentId, bodyMarkdown } = (action as ReturnType<typeof replyToTopic>)
+        .payload;
+
+      return from(
+        forum.posts.reply({
+          topicId: asTopicId(topicId),
+          parentId: parentId ? asPostId(parentId) : null,
+          bodyMarkdown,
+        }),
+      ).pipe(
+        map((post) => forumActions.replyPosted(post)),
+        startWith(forumActions.writeStarted()),
+        catchError((error: unknown) => of(forumActions.requestFailed(describeError(error)))),
+      );
+    }),
+  );
+
 export const forumEpic = combineEpics(
   loadCategoriesEpic,
   loadTopicsEpic,
   loadThreadEpic,
   watchThreadEpic,
+  createTopicEpic,
+  replyEpic,
 );

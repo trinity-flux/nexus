@@ -1,3 +1,4 @@
+import type { Author } from '../domain/entities';
 import type {
   CategoryRepository,
   PostRepository,
@@ -20,8 +21,16 @@ export interface InMemoryForum {
  * to move the topic's `lastActivityAt` — while the consumers still see four
  * narrow interfaces and cannot reach across them.
  */
-export function createInMemoryForum(latencyMs?: number): InMemoryForum {
-  const store = new InMemoryForumRepository(latencyMs);
+export interface InMemoryForumOptions {
+  latencyMs?: number;
+  /** Who is writing. See the note on InMemoryForumRepository's constructor. */
+  currentAuthor?: () => Author | null;
+}
+
+export function createInMemoryForum(options: InMemoryForumOptions = {}): InMemoryForum {
+  const store = new InMemoryForumRepository(options.latencyMs, {
+    ...(options.currentAuthor ? { currentAuthor: options.currentAuthor } : {}),
+  });
 
   return {
     categories: {

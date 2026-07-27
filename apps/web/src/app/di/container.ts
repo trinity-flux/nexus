@@ -1,3 +1,4 @@
+import { type AuthRepository, InMemoryAuthRepository } from '@/features/auth';
 import { env } from '@/shared/config/env';
 
 import { createForumRepositories, type ForumRepositories } from './forumRepositories';
@@ -15,11 +16,32 @@ import { createForumRepositories, type ForumRepositories } from './forumReposito
  * add indirection and lose the type inference this gets for free.
  */
 export interface Container {
+  auth: AuthRepository;
   forum: ForumRepositories;
 }
 
 export function createContainer(): Container {
+  const auth = createAuthRepository(env.dataSource);
+
   return {
-    forum: createForumRepositories(env.dataSource),
+    auth,
+    // The forum is given the auth repository so the in-memory adapter can
+    // attribute a post to whoever is signed in. See trackCurrentAuthor.
+    forum: createForumRepositories(env.dataSource, auth),
   };
+}
+
+function createAuthRepository(dataSource: 'memory' | 'supabase'): AuthRepository {
+  switch (dataSource) {
+    case 'supabase':
+      // Not falling back silently: a deployment configured for Supabase that
+      // quietly signs people in against a local list looks like it works, and
+      // the first person to notice is whoever finds they are not who they
+      // thought they were.
+      throw new Error(
+        'The Supabase auth adapter is not wired up yet. Set VITE_DATA_SOURCE=memory until the project exists.',
+      );
+    case 'memory':
+      return new InMemoryAuthRepository();
+  }
 }

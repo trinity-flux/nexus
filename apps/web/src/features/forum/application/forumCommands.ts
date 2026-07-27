@@ -24,3 +24,15 @@ export const loadThread = createAction<{ categorySlug: string; topicSlug: string
 /** Starts a realtime subscription. Emits until `stopWatching`. */
 export const watchThread = createAction<{ topicId: string }>('forum/watchThread');
 export const stopWatching = createAction('forum/stopWatching');
+
+export const createTopic = createAction<{
+  categorySlug: string;
+  title: string;
+  bodyMarkdown: string;
+}>('forum/createTopic');
+
+export const replyToTopic = createAction<{
+  topicId: string;
+  parentId: string | null;
+  bodyMarkdown: string;
+}>('forum/replyToTopic');

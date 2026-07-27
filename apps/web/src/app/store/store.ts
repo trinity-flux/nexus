@@ -1,6 +1,7 @@
 import { configureStore, type UnknownAction } from '@reduxjs/toolkit';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
 
+import { authEpic, authReducer } from '@/features/auth';
 import { forumEpic, forumReducer } from '@/features/forum';
 
 import type { Container } from '../di/container';
@@ -23,6 +24,7 @@ export function createStore(container: Container) {
 
   const store = configureStore({
     reducer: {
+      auth: authReducer,
       forum: forumReducer,
     },
     middleware: (getDefaultMiddleware) =>
@@ -33,7 +35,14 @@ export function createStore(container: Container) {
       }).concat(epicMiddleware),
   });
 
-  epicMiddleware.run(combineEpics(forumEpic));
+  // Annotated with `Container` because each feature declares only the slice
+  // of it that it needs. Without this, combineEpics infers the dependency type
+  // from the first epic and then rejects every later one for not matching.
+  // Container satisfies all of them, and epics are contravariant in their
+  // dependencies, so this is sound rather than a cast.
+  epicMiddleware.run(
+    combineEpics<UnknownAction, UnknownAction, unknown, Container>(authEpic, forumEpic),
+  );
 
   return store;
 }

@@ -1,6 +1,7 @@
 import { Observable, Subject } from 'rxjs';
 
 import {
+  type Author,
   asPostId,
   asTopicId,
   type Category,
@@ -42,6 +43,7 @@ export class InMemoryForumRepository {
   private readonly topicEvents = new Subject<TopicEvent>();
   private readonly postEvents = new Subject<PostEvent>();
   private readonly latencyMs: number;
+  private readonly currentAuthor: () => Author | null;
   private sequence = 0;
 
   // Written out rather than declared as constructor parameter properties:
@@ -49,9 +51,21 @@ export class InMemoryForumRepository {
   // with a runtime effect that a type-stripping tool cannot reproduce.
   constructor(
     latencyMs = 220,
-    seed: { categories?: Category[]; topics?: Topic[]; posts?: Post[] } = {},
+    seed: {
+      categories?: Category[];
+      topics?: Topic[];
+      posts?: Post[];
+      /**
+       * Who is writing. Supplied by the composition root rather than read
+       * here, because the forum has no business knowing the auth feature
+       * exists — and because in the real adapter this is not the client's to
+       * decide at all: Postgres fills author_id from auth.uid().
+       */
+      currentAuthor?: () => Author | null;
+    } = {},
   ) {
     this.latencyMs = latencyMs;
+    this.currentAuthor = seed.currentAuthor ?? (() => null);
     this.categories = seed.categories ?? [...SEED_CATEGORIES];
     this.topics = seed.topics ?? [...SEED_TOPICS];
     this.posts = seed.posts ?? [...SEED_POSTS];
@@ -110,7 +124,7 @@ export class InMemoryForumRepository {
       categoryId: draft.categoryId,
       slug: slugify(draft.title),
       title: draft.title,
-      author: null,
+      author: this.currentAuthor(),
       isPinned: false,
       isLocked: false,
       replyCount: 0,
@@ -124,7 +138,7 @@ export class InMemoryForumRepository {
       id: asPostId(`po-${this.nextId()}`),
       topicId: topic.id,
       parentId: null,
-      author: null,
+      author: this.currentAuthor(),
       bodyMarkdown: draft.bodyMarkdown,
       path: [],
       depth: 0,
@@ -191,7 +205,7 @@ export class InMemoryForumRepository {
       id,
       topicId: draft.topicId,
       parentId: (cappedParentPath[cappedParentPath.length - 1] as PostId | undefined) ?? null,
-      author: null,
+      author: this.currentAuthor(),
       bodyMarkdown: draft.bodyMarkdown,
       path,
       depth: path.length - 1,

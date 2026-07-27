@@ -19,6 +19,13 @@ export interface ForumState {
     posts: Post[];
     status: LoadState;
   };
+  /** True while a topic or reply is being posted. */
+  submitting: boolean;
+  /**
+   * Set once after a topic is created, so the page that asked for it can
+   * navigate to the new URL. Cleared as soon as it is consumed.
+   */
+  createdTopicSlug: string | null;
   /** Set when the last request failed. Cleared on the next successful load. */
   error: string | null;
 }
@@ -27,6 +34,8 @@ const initialState: ForumState = {
   categories: { items: [], status: 'idle' },
   topics: { byCategory: {}, sort: 'recent' },
   thread: { topic: null, posts: [], status: 'idle' },
+  submitting: false,
+  createdTopicSlug: null,
   error: null,
 };
 
@@ -114,7 +123,33 @@ export const forumSlice = createSlice({
       }
     },
 
+    writeStarted(state) {
+      state.submitting = true;
+      state.error = null;
+    },
+    topicCreated(state, action: PayloadAction<{ categorySlug: string; topic: Topic }>) {
+      state.submitting = false;
+      state.createdTopicSlug = action.payload.topic.slug;
+      const bucket = state.topics.byCategory[action.payload.categorySlug];
+      if (bucket) {
+        bucket.items = mergeById([action.payload.topic, ...bucket.items]);
+      }
+    },
+    navigationConsumed(state) {
+      state.createdTopicSlug = null;
+    },
+    replyPosted(state, action: PayloadAction<Post>) {
+      state.submitting = false;
+      // The post itself lands through `postReceived`, driven by the realtime
+      // stream, so both the author's own reply and everyone else's arrive by
+      // exactly one path.
+      if (state.thread.topic && state.thread.topic.id === action.payload.topicId) {
+        state.thread.topic.replyCount += 1;
+      }
+    },
+
     requestFailed(state, action: PayloadAction<string>) {
+      state.submitting = false;
       state.error = action.payload;
       if (state.categories.status === 'loading') {
         state.categories.status = 'failed';

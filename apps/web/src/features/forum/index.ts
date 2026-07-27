@@ -7,9 +7,11 @@
  */
 
 export {
+  createTopic,
   loadCategories,
   loadThread,
   loadTopics,
+  replyToTopic,
   stopWatching,
   watchThread,
 } from './application/forumCommands';
@@ -20,6 +22,16 @@ export {
   forumReducer,
   type LoadState,
 } from './application/forumSlice';
+export {
+  BODY_MAX_LENGTH,
+  type DraftProblem,
+  isSubmittable,
+  TITLE_MAX_LENGTH,
+  TITLE_MIN_LENGTH,
+  validateBody,
+  validateTitle,
+  validateTopicDraft,
+} from './domain/drafts';
 export {
   type Author,
   asCategoryId,
@@ -54,4 +66,5 @@ export { createInMemoryForum } from './infrastructure/createInMemoryForum';
 
 export { CategoriesPage } from './presentation/CategoriesPage';
 export { CategoryPage } from './presentation/CategoryPage';
+export { NewTopicPage } from './presentation/NewTopicPage';
 export { TopicPage } from './presentation/TopicPage';

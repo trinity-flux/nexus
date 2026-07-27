@@ -175,6 +175,22 @@
 
       "performance": {
         "preset": "recommended"
+      },
+
+      "security": {
+        "preset": "recommended",
+        // Escalated to errors. This forum renders text written by strangers,
+        // so each of these is the difference between a post and a payload.
+        // The one legitimate `dangerouslySetInnerHTML` is in MarkdownBody,
+        // suppressed inline with the reason, which is exactly the review
+        // trail that makes the rule worth having.
+        "noDangerouslySetInnerHtml": "error",
+        "noGlobalEval": "error",
+        "noScriptUrl": "error",
+        // Catches an API key or token pasted into source. It has false
+        // positives on long random-looking strings; those get an inline
+        // suppression naming what they are.
+        "noSecrets": "error"
       }
     }
   },
@@ -350,7 +366,11 @@
       "linter": {
         "rules": {
           "suspicious": { "noExplicitAny": "off" },
-          "style": { "noNonNullAssertion": "off", "noRestrictedImports": "off" }
+          "style": { "noNonNullAssertion": "off", "noRestrictedImports": "off" },
+          // The sanitisation tests are made of deliberate attack payloads —
+          // base64 blobs and long random-looking strings — which is precisely
+          // what noSecrets looks for.
+          "security": { "noSecrets": "off" }
         }
       }
     },

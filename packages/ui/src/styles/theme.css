@@ -238,6 +238,120 @@
   }
 }
 
+@layer components {
+  /*
+   * Rendered post bodies.
+   *
+   * Tailwind's preflight strips every default style, so without this a
+   * rendered post has no paragraph spacing, no list markers and no visible
+   * headings — markdown that produces plain-looking text is markdown nobody
+   * uses. Written by hand rather than with the typography plugin because the
+   * allow-list in `renderMarkdown` is short and this covers all of it.
+   */
+  .prose-forum > * + * {
+    margin-top: 0.75em;
+  }
+
+  .prose-forum h1,
+  .prose-forum h2,
+  .prose-forum h3,
+  .prose-forum h4 {
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--fg);
+  }
+
+  .prose-forum h1 {
+    font-size: 1.5em;
+  }
+  .prose-forum h2 {
+    font-size: 1.25em;
+  }
+  .prose-forum h3 {
+    font-size: 1.1em;
+  }
+
+  .prose-forum a {
+    color: var(--primary-text);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .prose-forum ul,
+  .prose-forum ol {
+    padding-left: 1.5em;
+  }
+
+  .prose-forum ul {
+    list-style: disc;
+  }
+  .prose-forum ol {
+    list-style: decimal;
+  }
+
+  .prose-forum li + li {
+    margin-top: 0.25em;
+  }
+
+  .prose-forum blockquote {
+    border-left: 3px solid var(--border-strong);
+    padding-left: 1em;
+    color: var(--fg-muted);
+  }
+
+  .prose-forum code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background-color: var(--surface-raised);
+    padding: 0.1em 0.35em;
+    border-radius: var(--radius-sm);
+  }
+
+  .prose-forum pre {
+    background-color: var(--surface-raised);
+    padding: 0.75em 1em;
+    border-radius: var(--radius-md);
+    /* A long line of code must scroll inside its own box; without this it
+       widens the whole page and every post scrolls sideways. */
+    overflow-x: auto;
+  }
+
+  .prose-forum pre code {
+    background-color: transparent;
+    padding: 0;
+  }
+
+  .prose-forum img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+  }
+
+  .prose-forum table {
+    display: block;
+    overflow-x: auto;
+    border-collapse: collapse;
+  }
+
+  .prose-forum th,
+  .prose-forum td {
+    border: 1px solid var(--border);
+    padding: 0.4em 0.75em;
+    text-align: left;
+  }
+
+  .prose-forum hr {
+    border-top: 1px solid var(--border);
+  }
+
+  .prose-forum mark {
+    background-color: var(--accent);
+    color: var(--accent-fg);
+    border-radius: var(--radius-sm);
+    padding: 0 0.15em;
+  }
+}
+
 @layer utilities {
   /*
    * Enter and exit animations for overlays.

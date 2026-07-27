@@ -25,6 +25,12 @@ const CategoryPage = lazy(async () => ({
 const TopicPage = lazy(async () => ({
   default: (await import('@/features/forum')).TopicPage,
 }));
+const NewTopicPage = lazy(async () => ({
+  default: (await import('@/features/forum')).NewTopicPage,
+}));
+const SignInPage = lazy(async () => ({
+  default: (await import('@/features/auth')).SignInPage,
+}));
 
 function lazyRoute(element: React.ReactNode) {
   return <Suspense fallback={<RouteFallback />}>{element}</Suspense>;
@@ -37,7 +43,10 @@ const routes: RouteObject[] = [
       { index: true, element: <HomePage /> },
       { path: 'c', element: lazyRoute(<CategoriesPage />) },
       { path: 'c/:categorySlug', element: lazyRoute(<CategoryPage />) },
+      // Before the :topicSlug route, or "new" would be read as a topic slug.
+      { path: 'c/:categorySlug/new', element: lazyRoute(<NewTopicPage />) },
       { path: 'c/:categorySlug/:topicSlug', element: lazyRoute(<TopicPage />) },
+      { path: 'sign-in', element: lazyRoute(<SignInPage />) },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

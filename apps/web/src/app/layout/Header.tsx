@@ -12,6 +12,8 @@ import {
 import { Check, Languages, Monitor, Moon, Search, Sun } from 'lucide-react';
 import { NavLink } from 'react-router';
 
+import { UserMenu } from '@/features/auth';
+
 import { LOCALE_NAMES, LOCALES } from '@/shared/i18n/locales';
 import { useI18n } from '@/shared/i18n/useI18n';
 
@@ -116,9 +118,7 @@ export function Header() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button size="sm" variant="secondary">
-            {t('nav.signIn')}
-          </Button>
+          <UserMenu />
         </div>
       </div>
     </header>

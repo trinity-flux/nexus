@@ -1,12 +1,16 @@
 import { Avatar, Badge, Button, Card, ErrorState, Separator, Skeleton } from '@trinity-nexus/ui';
 import { Lock, Pin } from 'lucide-react';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router';
 
+import { useAuth } from '@/features/auth';
+
 import { useI18n } from '@/shared/i18n/useI18n';
-import { loadThread, stopWatching, watchThread } from '../application/forumCommands';
+import { loadThread, replyToTopic, stopWatching, watchThread } from '../application/forumCommands';
 import type { Post } from '../domain/entities';
 import { buildThreadTree, type ThreadNode } from '../domain/threadTree';
+import { Composer } from './Composer';
+import { MarkdownBody } from './MarkdownBody';
 import { useForumDispatch, useForumSelector } from './useForum';
 
 export function TopicPage() {
@@ -87,12 +91,64 @@ export function TopicPage() {
         ))}
       </ol>
 
-      {topic.isLocked ? null : (
-        <div className="pt-2">
-          <Button>{t('topic.reply')}</Button>
-        </div>
-      )}
+      {topic.isLocked ? null : <ReplyBox topicId={topic.id} />}
     </article>
+  );
+}
+
+/**
+ * The reply box at the foot of a thread.
+ *
+ * Collapsed to a button until it is wanted: an always-open editor at the
+ * bottom of every thread pushes the last reply off the screen, which is the
+ * one people are usually there to read.
+ */
+function ReplyBox({ topicId }: { topicId: string }) {
+  const { t } = useI18n();
+  const dispatch = useForumDispatch();
+  const { isSignedIn, canPost } = useAuth();
+  const submitting = useForumSelector((forum) => forum.submitting);
+  const [open, setOpen] = useState(false);
+
+  if (!isSignedIn) {
+    return (
+      <Button asChild variant="secondary">
+        <Link to={`/sign-in?next=${encodeURIComponent(window.location.pathname)}`}>
+          {t('nav.signIn')}
+        </Link>
+      </Button>
+    );
+  }
+
+  if (!canPost) {
+    return null;
+  }
+
+  if (!open) {
+    return (
+      <div className="pt-2">
+        <Button
+          onClick={() => {
+            setOpen(true);
+          }}
+        >
+          {t('topic.reply')}
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <Composer
+      onCancel={() => {
+        setOpen(false);
+      }}
+      onSubmit={({ body }) => {
+        dispatch(replyToTopic({ topicId, parentId: null, bodyMarkdown: body }));
+        setOpen(false);
+      }}
+      submitting={submitting}
+    />
   );
 }
 
@@ -157,9 +213,7 @@ function PostCard({ post }: { post: Post }) {
         ) : null}
       </div>
 
-      {/* Markdown rendering lands with the composer; until then the raw text is
-          shown as plain text, which is safe by construction. */}
-      <p className="whitespace-pre-wrap text-fg text-sm leading-relaxed">{post.bodyMarkdown}</p>
+      <MarkdownBody className="prose-forum text-fg text-sm" source={post.bodyMarkdown} />
     </Card>
   );
 }
