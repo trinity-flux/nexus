@@ -12,6 +12,7 @@ export {
   loadThread,
   loadTopics,
   replyToTopic,
+  searchQueryChanged,
   stopWatching,
   watchThread,
 } from './application/forumCommands';
@@ -49,6 +50,13 @@ export {
   type TopicQuery,
   type TopicSort,
 } from './domain/entities';
+export {
+  findMatchRanges,
+  parseSearchTerms,
+  splitByRanges,
+  type TextRange,
+  type TextSegment,
+} from './domain/highlight';
 export type {
   CategoryRepository,
   PostEvent,
@@ -67,4 +75,5 @@ export { createInMemoryForum } from './infrastructure/createInMemoryForum';
 export { CategoriesPage } from './presentation/CategoriesPage';
 export { CategoryPage } from './presentation/CategoryPage';
 export { NewTopicPage } from './presentation/NewTopicPage';
+export { SearchPage } from './presentation/SearchPage';
 export { TopicPage } from './presentation/TopicPage';

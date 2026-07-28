@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import type { Category, Post, Topic, TopicSort } from '../domain/entities';
+import type { SearchResult } from '../domain/ports';
 
 export type LoadState = 'idle' | 'loading' | 'ready' | 'failed';
 
@@ -19,6 +20,17 @@ export interface ForumState {
     posts: Post[];
     status: LoadState;
   };
+  search: {
+    /**
+     * The query the results belong to, which is not necessarily the one in the
+     * box: the box is ahead of the results by however long the debounce and
+     * the request take. Storing it is what lets the page say "3 results for
+     * X" without the label changing before the list under it does.
+     */
+    query: string;
+    results: SearchResult[];
+    status: LoadState;
+  };
   /** True while a topic or reply is being posted. */
   submitting: boolean;
   /**
@@ -34,6 +46,7 @@ const initialState: ForumState = {
   categories: { items: [], status: 'idle' },
   topics: { byCategory: {}, sort: 'recent' },
   thread: { topic: null, posts: [], status: 'idle' },
+  search: { query: '', results: [], status: 'idle' },
   submitting: false,
   createdTopicSlug: null,
   error: null,
@@ -123,6 +136,24 @@ export const forumSlice = createSlice({
       }
     },
 
+    // --- search ---
+    searchRequested(state, action: PayloadAction<string>) {
+      state.search.status = 'loading';
+      // The query is not written here. It belongs to the results, and until
+      // they arrive the results on screen are still the previous query's.
+      if (action.payload.length === 0) {
+        state.search.query = '';
+        state.search.results = [];
+        state.search.status = 'idle';
+      }
+    },
+    searchCompleted(state, action: PayloadAction<{ query: string; results: SearchResult[] }>) {
+      state.search.query = action.payload.query;
+      state.search.results = action.payload.results;
+      state.search.status = 'ready';
+      state.error = null;
+    },
+
     writeStarted(state) {
       state.submitting = true;
       state.error = null;
@@ -156,6 +187,9 @@ export const forumSlice = createSlice({
       }
       if (state.thread.status === 'loading') {
         state.thread.status = 'failed';
+      }
+      if (state.search.status === 'loading') {
+        state.search.status = 'failed';
       }
       for (const bucket of Object.values(state.topics.byCategory)) {
         if (bucket.status === 'loading') {

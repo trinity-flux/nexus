@@ -61,6 +61,9 @@ export function MobileNav() {
               <li>
                 <DrawerLink to="/c">{t('nav.categories')}</DrawerLink>
               </li>
+              <li>
+                <DrawerLink to="/search">{t('nav.search')}</DrawerLink>
+              </li>
             </ul>
           </nav>
 

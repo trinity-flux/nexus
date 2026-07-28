@@ -13,6 +13,7 @@ import {
   type TopicId,
   type TopicQuery,
 } from '../domain/entities';
+import { findMatchRanges, parseSearchTerms } from '../domain/highlight';
 import type { PostEvent, ReplyDraft, SearchResult, TopicDraft, TopicEvent } from '../domain/ports';
 import { SEED_CATEGORIES, SEED_POSTS, SEED_TOPICS } from './seedContent';
 
@@ -269,15 +270,23 @@ export class InMemoryForumRepository {
   async search(query: string, limit = 20): Promise<SearchResult[]> {
     await this.delay();
 
-    const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+    const terms = parseSearchTerms(query);
     if (terms.length === 0) {
       return [];
     }
 
+    // Every term has to appear, which is what people expect from a second
+    // word: it narrows the result set rather than widening it.
     return this.topics
-      .filter((topic) => terms.every((term) => topic.title.toLowerCase().includes(term)))
+      .filter((topic) => terms.every((term) => findMatchRanges(topic.title, [term]).length > 0))
       .slice(0, limit)
-      .map((topic) => ({ topic, excerpt: highlight(topic.title, terms) }));
+      .map((topic) => ({
+        topic,
+        categorySlug:
+          this.categories.find((category) => category.id === topic.categoryId)?.slug ?? '',
+        excerpt: topic.title,
+        matches: findMatchRanges(topic.title, terms),
+      }));
   }
 
   private mapTopic(id: TopicId, change: (topic: Topic) => Topic): Topic {
@@ -341,15 +350,4 @@ function slugify(title: string): string {
       .replace(/^-+|-+$/g, '')
       .slice(0, 64) || 'topic'
   );
-}
-
-function highlight(text: string, terms: readonly string[]): string {
-  return terms.reduce(
-    (result, term) => result.replace(new RegExp(escapeRegExp(term), 'gi'), '<mark>$&</mark>'),
-    text,
-  );
-}
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

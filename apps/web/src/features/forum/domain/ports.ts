@@ -10,6 +10,7 @@ import type {
   TopicId,
   TopicQuery,
 } from './entities';
+import type { TextRange } from './highlight';
 
 /**
  * What the forum needs from the outside world, stated as interfaces.
@@ -74,8 +75,24 @@ export interface PostRepository {
 
 export interface SearchResult {
   topic: Topic;
-  /** The matching fragment, with the query terms marked by `<mark>`. */
+  /**
+   * The slug of the topic's category.
+   *
+   * Carried on the result rather than looked up by the caller: a topic's URL
+   * needs it, and resolving it here is one join in the query instead of a
+   * request per result.
+   */
+  categorySlug: string;
+  /** The matching fragment, as plain text. */
   excerpt: string;
+  /**
+   * Where the query terms sit inside `excerpt`.
+   *
+   * Offsets rather than a string with `<mark>` in it: the excerpt is text a
+   * stranger wrote, and markup assembled around it would have to be sanitised
+   * again before it could be rendered. An offset cannot carry a payload.
+   */
+  matches: TextRange[];
 }
 
 export interface SearchRepository {

@@ -3,6 +3,8 @@ import { combineEpics, type Epic, ofType } from 'redux-observable';
 import {
   catchError,
   concatMap,
+  debounceTime,
+  distinctUntilChanged,
   from,
   map,
   mergeMap,
@@ -13,13 +15,19 @@ import {
 } from 'rxjs';
 
 import { asPostId, asTopicId } from '../domain/entities';
-import type { CategoryRepository, PostRepository, TopicRepository } from '../domain/ports';
+import type {
+  CategoryRepository,
+  PostRepository,
+  SearchRepository,
+  TopicRepository,
+} from '../domain/ports';
 import {
   createTopic,
   loadCategories,
   loadThread,
   loadTopics,
   replyToTopic,
+  searchQueryChanged,
   stopWatching,
   watchThread,
 } from './forumCommands';
@@ -35,8 +43,16 @@ export interface ForumEpicDependencies {
     categories: CategoryRepository;
     topics: TopicRepository;
     posts: PostRepository;
+    search: SearchRepository;
   };
 }
+
+/**
+ * Long enough that an ordinary typing speed produces one request rather than
+ * one per letter; short enough that the pause before results appear reads as
+ * the network, not as the interface hesitating.
+ */
+const SEARCH_DEBOUNCE_MS = 250;
 
 /**
  * `UnknownAction` rather than a union of this feature's actions: the stream an
@@ -194,6 +210,44 @@ const replyEpic: ForumEpic = (action$, _state$, { forum }) =>
     }),
   );
 
+/**
+ * Search as you type.
+ *
+ * The one place in the application where RxJS is not a stylistic choice.
+ * Three operators, each removing a defect that is otherwise written by hand
+ * and written wrong:
+ *
+ * - `debounceTime` stops a request per keystroke. Someone typing "northrend"
+ *   would otherwise send nine.
+ * - `distinctUntilChanged` drops the request that adding and deleting a
+ *   character would produce, and the one from a keystroke that only moved the
+ *   cursor.
+ * - `switchMap` cancels the request in flight when a newer one starts. This is
+ *   the classic bug: type "no", type "northrend", and the slow answer to "no"
+ *   lands last and overwrites the right results. Here it cannot, because the
+ *   first request is unsubscribed rather than left to finish.
+ */
+const searchEpic: ForumEpic = (action$, _state$, { forum }) =>
+  action$.pipe(
+    ofType(searchQueryChanged.type),
+    map((action) => (action as ReturnType<typeof searchQueryChanged>).payload.query.trim()),
+    debounceTime(SEARCH_DEBOUNCE_MS),
+    distinctUntilChanged(),
+    switchMap((query) => {
+      if (query.length === 0) {
+        // Clearing the box is not a search. Emitting the empty request lets
+        // the reducer reset the results without a round trip.
+        return of(forumActions.searchRequested(''));
+      }
+
+      return from(forum.search.search(query)).pipe(
+        map((results) => forumActions.searchCompleted({ query, results })),
+        startWith(forumActions.searchRequested(query)),
+        catchError((error: unknown) => of(forumActions.requestFailed(describeError(error)))),
+      );
+    }),
+  );
+
 export const forumEpic = combineEpics(
   loadCategoriesEpic,
   loadTopicsEpic,
@@ -201,4 +255,5 @@ export const forumEpic = combineEpics(
   watchThreadEpic,
   createTopicEpic,
   replyEpic,
+  searchEpic,
 );

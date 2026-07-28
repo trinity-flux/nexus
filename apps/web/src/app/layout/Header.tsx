@@ -6,20 +6,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  Input,
   useTheme,
 } from '@trinity-nexus/ui';
 import { Check, Languages, Monitor, Moon, Search, Sun } from 'lucide-react';
-import { NavLink } from 'react-router';
+import { Link, NavLink } from 'react-router';
 
 import { UserMenu } from '@/features/auth';
 
 import { LOCALE_NAMES, LOCALES } from '@/shared/i18n/locales';
 import { useI18n } from '@/shared/i18n/useI18n';
 
+import { HeaderSearch } from './HeaderSearch';
 import { MobileNav } from './MobileNav';
-
-const SEARCH_INPUT_ID = 'header-search';
 
 export function Header() {
   const { t, locale, setLocale } = useI18n();
@@ -43,25 +41,24 @@ export function Header() {
         </nav>
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
-          <div className="relative hidden md:block">
-            {/* The association is spelled out with htmlFor/id rather than by
-                nesting the input inside the label: a linter cannot see through
-                a component boundary, and neither can some older screen
-                readers. */}
-            <label className="sr-only" htmlFor={SEARCH_INPUT_ID}>
-              {t('nav.search')}
-            </label>
-            <Search
-              aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-fg-subtle"
-            />
-            <Input
-              className="w-56 pl-9"
-              id={SEARCH_INPUT_ID}
-              placeholder={t('nav.searchPlaceholder')}
-              type="search"
-            />
+          <div className="hidden md:block">
+            <HeaderSearch />
           </div>
+
+          {/* Below `md` the box does not fit, so the icon leads to the page
+              that is nothing but the box. A search someone cannot reach on a
+              phone is a search that does not exist. */}
+          <Button
+            aria-label={t('nav.search')}
+            asChild
+            className="md:hidden"
+            size="icon-sm"
+            variant="ghost"
+          >
+            <Link to="/search">
+              <Search aria-hidden="true" className="size-4" />
+            </Link>
+          </Button>
 
           {/* Hidden on a phone, where the same two settings live in the
               navigation drawer. Five controls in a 375px bar means five

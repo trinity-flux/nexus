@@ -36,3 +36,12 @@ export const replyToTopic = createAction<{
   parentId: string | null;
   bodyMarkdown: string;
 }>('forum/replyToTopic');
+
+/**
+ * Dispatched on every keystroke.
+ *
+ * The debounce lives in the epic, not here and not in the component: a
+ * component that debounces its own dispatches has to own a timer, cancel it on
+ * unmount, and gets it wrong the first time someone renders two search boxes.
+ */
+export const searchQueryChanged = createAction<{ query: string }>('forum/searchQueryChanged');

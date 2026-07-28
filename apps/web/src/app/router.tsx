@@ -28,6 +28,9 @@ const TopicPage = lazy(async () => ({
 const NewTopicPage = lazy(async () => ({
   default: (await import('@/features/forum')).NewTopicPage,
 }));
+const SearchPage = lazy(async () => ({
+  default: (await import('@/features/forum')).SearchPage,
+}));
 const SignInPage = lazy(async () => ({
   default: (await import('@/features/auth')).SignInPage,
 }));
@@ -46,6 +49,7 @@ const routes: RouteObject[] = [
       // Before the :topicSlug route, or "new" would be read as a topic slug.
       { path: 'c/:categorySlug/new', element: lazyRoute(<NewTopicPage />) },
       { path: 'c/:categorySlug/:topicSlug', element: lazyRoute(<TopicPage />) },
+      { path: 'search', element: lazyRoute(<SearchPage />) },
       { path: 'sign-in', element: lazyRoute(<SignInPage />) },
       { path: '*', element: <NotFoundPage /> },
     ],
