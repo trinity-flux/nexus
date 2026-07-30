@@ -382,7 +382,7 @@
       // `process.env['ANALYZE']`, and this rule wants `process.env.ANALYZE`.
       // The tsconfig flag is the one worth keeping — it is what makes a typo
       // in an environment variable name a compile error.
-      "includes": ["**/*.config.ts", "**/scripts/**"],
+      "includes": ["**/*.config.ts", "**/scripts/**", "apps/*/build/**"],
       "linter": {
         "rules": {
           "suspicious": { "noConsole": "off" },

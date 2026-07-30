@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Trinity Nexus">
+  <title>Trinity Nexus</title>
+  <rect width="32" height="32" rx="7" fill="#0f172a" />
+  <!-- Three nodes joined into one: the trinity, and a nexus between them.
+       Drawn rather than exported so it stays a few hundred bytes and needs no
+       raster fallbacks — every browser that can run this app renders SVG. -->
+  <path
+    d="M16 8 L23.5 21 L8.5 21 Z"
+    fill="none"
+    stroke="#8b5cf6"
+    stroke-width="2.5"
+    stroke-linejoin="round"
+  />
+  <circle cx="16" cy="8" r="3" fill="#f59e0b" />
+  <circle cx="23.5" cy="21" r="3" fill="#8b5cf6" />
+  <circle cx="8.5" cy="21" r="3" fill="#8b5cf6" />
+</svg>

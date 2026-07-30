@@ -28,6 +28,5 @@ export type { AuthRepository, AuthResult } from './domain/ports';
 
 export { InMemoryAuthRepository } from './infrastructure/InMemoryAuthRepository';
 
-export { SignInPage } from './presentation/SignInPage';
 export { UserMenu } from './presentation/UserMenu';
 export { type AuthView, useAuth, useAuthDispatch } from './presentation/useAuth';

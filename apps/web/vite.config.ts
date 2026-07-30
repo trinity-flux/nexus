@@ -6,6 +6,9 @@ import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, loadEnv, type PluginOption } from 'vite';
 
+import { sitemapPlugin } from './build/sitemapPlugin';
+import { spaFallbackPlugin } from './build/spaFallbackPlugin';
+
 /**
  * GitHub Pages serves this repository as a *project* page, so the app lives
  * under a sub-path rather than at the domain root. Everything that builds a URL
@@ -14,11 +17,21 @@ import { defineConfig, loadEnv, type PluginOption } from 'vite';
  */
 const DEFAULT_BASE_PATH = '/trinitynexus.github.io/';
 
+/** Where the built site is reachable. Only used to write absolute SEO URLs. */
+const DEFAULT_SITE_URL = 'https://trinity-flux.github.io';
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_');
   const base = env['VITE_BASE_PATH'] ?? DEFAULT_BASE_PATH;
+  const siteUrl = env['VITE_SITE_URL'] ?? DEFAULT_SITE_URL;
 
-  const plugins: PluginOption[] = [react(), tailwindcss()];
+  const plugins: PluginOption[] = [
+    react(),
+    tailwindcss(),
+    // Both only run on build, so `vite dev` is unaffected.
+    sitemapPlugin({ siteUrl, basePath: base }),
+    spaFallbackPlugin(),
+  ];
 
   if (process.env['ANALYZE'] === 'true') {
     plugins.push(

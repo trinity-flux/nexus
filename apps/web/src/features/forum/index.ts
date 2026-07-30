@@ -4,6 +4,10 @@
  * Everything outside this feature imports from here and nowhere deeper — a
  * rule Biome enforces, so a shortcut into `application/` fails the build
  * rather than quietly coupling two features to each other's internals.
+ *
+ * Route components are NOT here. They live in `pages.ts`, because the store
+ * imports this file at startup and a barrel is loaded whole — see the comment
+ * there.
  */
 
 export {
@@ -71,9 +75,3 @@ export type {
 export { buildThreadTree, countPosts, type ThreadNode } from './domain/threadTree';
 
 export { createInMemoryForum } from './infrastructure/createInMemoryForum';
-
-export { CategoriesPage } from './presentation/CategoriesPage';
-export { CategoryPage } from './presentation/CategoryPage';
-export { NewTopicPage } from './presentation/NewTopicPage';
-export { SearchPage } from './presentation/SearchPage';
-export { TopicPage } from './presentation/TopicPage';

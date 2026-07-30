@@ -15,24 +15,28 @@ import { RouteFallback } from './RouteFallback';
  * indexes, so it ships eagerly; the rest arrives when someone actually
  * navigates. `<Link>` prefetching on hover means that usually happens before
  * the click lands.
+ *
+ * Imported from each feature's `pages` entry rather than its `index`, because
+ * the store imports `index` eagerly: sharing one barrel put every page in the
+ * initial bundle and made these `lazy()` calls do nothing.
  */
 const CategoriesPage = lazy(async () => ({
-  default: (await import('@/features/forum')).CategoriesPage,
+  default: (await import('@/features/forum/pages')).CategoriesPage,
 }));
 const CategoryPage = lazy(async () => ({
-  default: (await import('@/features/forum')).CategoryPage,
+  default: (await import('@/features/forum/pages')).CategoryPage,
 }));
 const TopicPage = lazy(async () => ({
-  default: (await import('@/features/forum')).TopicPage,
+  default: (await import('@/features/forum/pages')).TopicPage,
 }));
 const NewTopicPage = lazy(async () => ({
-  default: (await import('@/features/forum')).NewTopicPage,
+  default: (await import('@/features/forum/pages')).NewTopicPage,
 }));
 const SearchPage = lazy(async () => ({
-  default: (await import('@/features/forum')).SearchPage,
+  default: (await import('@/features/forum/pages')).SearchPage,
 }));
 const SignInPage = lazy(async () => ({
-  default: (await import('@/features/auth')).SignInPage,
+  default: (await import('@/features/auth/pages')).SignInPage,
 }));
 
 function lazyRoute(element: React.ReactNode) {

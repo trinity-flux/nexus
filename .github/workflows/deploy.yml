@@ -1,0 +1,81 @@
+name: Deploy to GitHub Pages
+
+# Every push to main is a release. Pull requests run the same checks but stop
+# before deploying, so a branch is verified by the pipeline that will publish it
+# rather than by a weaker one.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deployment at a time, and a newer commit does not cancel a running one:
+# cancelling mid-deploy is how a site ends up serving half of two releases.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Typecheck, lint, test and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        # Version comes from `packageManager` in package.json, so CI and a
+        # developer's machine cannot drift apart.
+
+      - name: Install Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        # `--frozen-lockfile` fails rather than silently resolving a different
+        # tree than the one that was reviewed.
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify and build
+        env:
+          # The build reads these; they are all public by definition, since
+          # anything prefixed VITE_ is compiled into the bundle a visitor
+          # downloads. The Supabase anon key belongs here once the project
+          # exists — the service_role key never does.
+          VITE_BASE_PATH: /trinitynexus.github.io/
+          VITE_SITE_URL: https://trinity-flux.github.io
+          VITE_DATA_SOURCE: memory
+        run: pnpm run ci
+
+      - name: Upload the built site
+        # Only on a push: a pull request has proved the build works, and there
+        # is nothing to publish until it lands.
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: apps/web/dist
+
+  deploy:
+    name: Publish
+    needs: verify
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      # Scoped to this job rather than the workflow: the job that runs the
+      # repository's own test suite has no business holding a token that can
+      # publish.
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5
