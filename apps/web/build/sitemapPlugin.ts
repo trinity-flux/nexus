@@ -22,16 +22,16 @@ export interface SitemapOptions {
 }
 
 /**
- * Emits `sitemap.xml` next to the built app.
+ * Emits `sitemap.xml`, and `robots.txt` when the site owns the domain root.
  *
  * Generated rather than committed so the URLs cannot drift from the base path:
  * both come from the same two values the build already resolved, so moving the
- * site to a custom domain rewrites the sitemap with it.
+ * site to a custom domain rewrites them with it.
  *
- * No `robots.txt`. On a project page the app is served from a sub-path, and
- * crawlers only read `robots.txt` at the domain root — which belongs to a
- * different repository. Emitting one here would produce a file that looks
- * authoritative and is never fetched.
+ * `robots.txt` is conditional because crawlers only ever fetch it from the
+ * domain root. Served from a sub-path it is never read, and a file that looks
+ * authoritative and is silently ignored is worse than no file — someone will
+ * eventually add a rule to it and believe it took effect.
  */
 export function sitemapPlugin({ siteUrl, basePath }: SitemapOptions): Plugin {
   return {
@@ -51,6 +51,27 @@ export function sitemapPlugin({ siteUrl, basePath }: SitemapOptions): Plugin {
         fileName: 'sitemap.xml',
         source: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`,
       });
+
+      if (basePath === '/') {
+        this.emitFile({
+          type: 'asset',
+          fileName: 'robots.txt',
+          // Deliberately narrow. This host also serves other repositories'
+          // project pages, and a blanket rule here would apply to them too;
+          // only the two paths that belong to this app are named.
+          //
+          // `/search` is excluded because a crawlable search page is an
+          // endless supply of query-string URLs that index nothing.
+          source: [
+            'User-agent: *',
+            'Disallow: /search',
+            'Disallow: /sign-in',
+            '',
+            `Sitemap: ${origin}/sitemap.xml`,
+            '',
+          ].join('\n'),
+        });
+      }
     },
   };
 }

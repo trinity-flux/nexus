@@ -23,11 +23,23 @@ describe('env', () => {
   });
 
   it('reads the base path Vite resolved, not the raw variable', async () => {
-    vi.stubEnv('BASE_URL', '/trinitynexus.github.io/');
+    // Deliberately a sub-path, even though the site is served from the root.
+    // Nothing in the application may assume "/": the sub-path case is what a
+    // project page or a staging deployment produces, and it has to keep
+    // working.
+    vi.stubEnv('BASE_URL', '/some-project/');
 
     const { env } = await loadEnv();
 
-    expect(env.basePath).toBe('/trinitynexus.github.io/');
+    expect(env.basePath).toBe('/some-project/');
+  });
+
+  it('accepts the domain root, which is how this site is actually served', async () => {
+    vi.stubEnv('BASE_URL', '/');
+
+    const { env } = await loadEnv();
+
+    expect(env.basePath).toBe('/');
   });
 
   it('turns feature flags into booleans', async () => {

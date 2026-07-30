@@ -10,12 +10,15 @@ import { sitemapPlugin } from './build/sitemapPlugin';
 import { spaFallbackPlugin } from './build/spaFallbackPlugin';
 
 /**
- * GitHub Pages serves this repository as a *project* page, so the app lives
- * under a sub-path rather than at the domain root. Everything that builds a URL
- * — the router basename, canonical tags, the sitemap — reads this single value,
- * so pointing the site at a custom domain later means setting it to "/".
+ * Where the app is mounted.
+ *
+ * GitHub Pages serves this as a project page — the repository is not named
+ * after its owner — so the app lives under a sub-path. Everything that builds
+ * a URL reads this one value: the router basename, the sitemap, and every
+ * asset reference Vite rewrites. Moving to a custom domain, or to the
+ * organisation's root, is a one-line change here.
  */
-const DEFAULT_BASE_PATH = '/trinitynexus.github.io/';
+const DEFAULT_BASE_PATH = '/nexus/';
 
 /** Where the built site is reachable. Only used to write absolute SEO URLs. */
 const DEFAULT_SITE_URL = 'https://trinity-flux.github.io';

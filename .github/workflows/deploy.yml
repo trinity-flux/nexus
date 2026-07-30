@@ -48,7 +48,7 @@ jobs:
           # anything prefixed VITE_ is compiled into the bundle a visitor
           # downloads. The Supabase anon key belongs here once the project
           # exists — the service_role key never does.
-          VITE_BASE_PATH: /trinitynexus.github.io/
+          VITE_BASE_PATH: /nexus/
           VITE_SITE_URL: https://trinity-flux.github.io
           VITE_DATA_SOURCE: memory
         run: pnpm run ci

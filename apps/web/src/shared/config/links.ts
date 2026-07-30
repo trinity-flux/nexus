@@ -6,5 +6,5 @@
  * search across the codebase for a hard-coded URL.
  */
 export const EXTERNAL_LINKS = {
-  repository: 'https://github.com/trinity-flux/trinitynexus.github.io',
+  repository: 'https://github.com/trinity-flux/nexus',
 } as const;
