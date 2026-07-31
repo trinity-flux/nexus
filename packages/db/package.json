@@ -14,6 +14,7 @@
     "db:reset": "supabase db reset",
     "db:push": "supabase db push",
     "db:diff": "supabase db diff -f",
+    "db:bundle": "node --experimental-strip-types scripts/bundleMigrations.ts",
     "db:types": "supabase gen types typescript --local > src/generated/database.types.ts",
     "clean": "rm -rf node_modules *.tsbuildinfo",
     "test": "vitest run",
