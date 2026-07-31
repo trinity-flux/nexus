@@ -40,7 +40,7 @@ const watchSessionEpic: AuthEpic = (action$, _state$, { auth }) =>
  * state twice from two places.
  */
 function reportOnlyFailure(result: AuthResult) {
-  return result.ok ? EMPTY : of(authActions.submissionFailed(result.failure));
+  return result.status === 'failed' ? of(authActions.submissionFailed(result.failure)) : EMPTY;
 }
 
 const signInEpic: AuthEpic = (action$, _state$, { auth }) =>

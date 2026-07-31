@@ -1,5 +1,10 @@
-import { type AuthRepository, InMemoryAuthRepository } from '@/features/auth';
+import {
+  type AuthRepository,
+  InMemoryAuthRepository,
+  SupabaseAuthRepository,
+} from '@/features/auth';
 import { env } from '@/shared/config/env';
+import { createSupabaseClient } from '@/shared/supabase/createSupabaseClient';
 
 import { createForumRepositories, type ForumRepositories } from './forumRepositories';
 
@@ -34,13 +39,7 @@ export function createContainer(): Container {
 function createAuthRepository(dataSource: 'memory' | 'supabase'): AuthRepository {
   switch (dataSource) {
     case 'supabase':
-      // Not falling back silently: a deployment configured for Supabase that
-      // quietly signs people in against a local list looks like it works, and
-      // the first person to notice is whoever finds they are not who they
-      // thought they were.
-      throw new Error(
-        'The Supabase auth adapter is not wired up yet. Set VITE_DATA_SOURCE=memory until the project exists.',
-      );
+      return new SupabaseAuthRepository(createSupabaseClient());
     case 'memory':
       return new InMemoryAuthRepository();
   }

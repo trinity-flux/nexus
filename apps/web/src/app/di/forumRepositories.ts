@@ -6,10 +6,12 @@ import {
   asProfileId,
   type CategoryRepository,
   createInMemoryForum,
+  createSupabaseForum,
   type PostRepository,
   type SearchRepository,
   type TopicRepository,
 } from '@/features/forum';
+import { createSupabaseClient } from '@/shared/supabase/createSupabaseClient';
 
 export interface ForumRepositories {
   categories: CategoryRepository;
@@ -31,13 +33,10 @@ export function createForumRepositories(
 ): ForumRepositories {
   switch (dataSource) {
     case 'supabase':
-      // Deliberately not silently falling back to the in-memory adapter. A
-      // deployment configured for Supabase that quietly serves sample content
-      // looks like it works, and the first person to notice is a member whose
-      // post disappeared on reload.
-      throw new Error(
-        'The Supabase adapters are not wired up yet. Set VITE_DATA_SOURCE=memory until the project exists.',
-      );
+      // No `currentAuthor` here, and that is the point: against Postgres the
+      // author is not the client's to state. `auth.uid()` fills `author_id`,
+      // so a tampered request cannot post as somebody else.
+      return createSupabaseForum(createSupabaseClient());
     case 'memory':
       return createInMemoryForum({ currentAuthor: trackCurrentAuthor(auth) });
   }

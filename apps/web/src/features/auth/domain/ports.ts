@@ -3,11 +3,22 @@ import type { Observable } from 'rxjs';
 import type { AuthFailure, Credentials, Session } from './entities';
 
 /**
- * Sign-in either works or fails for a reason the UI can act on. Modelled as a
- * result rather than a thrown error, because "wrong password" is an expected
+ * How an attempt to sign in or sign up ended.
+ *
+ * A result rather than a thrown error, because "wrong password" is an expected
  * outcome of a sign-in form, not an exception.
+ *
+ * Discriminated by `status` and not by a boolean `ok`. There are three
+ * outcomes, not two: a project that requires email confirmation accepts the
+ * sign-up and issues no session, which is neither a success the UI can act on
+ * nor a failure to apologise for. With a boolean, that third case has to
+ * pretend to be one of the other two — and under `result.ok ? …` a truthy
+ * marker would silently take the success branch.
  */
-export type AuthResult = { ok: true; session: Session } | { ok: false; failure: AuthFailure };
+export type AuthResult =
+  | { status: 'signed-in'; session: Session }
+  | { status: 'confirmation-required' }
+  | { status: 'failed'; failure: AuthFailure };
 
 export interface AuthRepository {
   /** The session restored from storage at startup, if any. */

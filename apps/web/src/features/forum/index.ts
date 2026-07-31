@@ -75,3 +75,4 @@ export type {
 export { buildThreadTree, countPosts, type ThreadNode } from './domain/threadTree';
 
 export { createInMemoryForum } from './infrastructure/createInMemoryForum';
+export { createSupabaseForum, type SupabaseForum } from './infrastructure/createSupabaseForum';

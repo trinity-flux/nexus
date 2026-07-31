@@ -44,13 +44,24 @@ jobs:
 
       - name: Verify and build
         env:
-          # The build reads these; they are all public by definition, since
-          # anything prefixed VITE_ is compiled into the bundle a visitor
-          # downloads. The Supabase anon key belongs here once the project
-          # exists — the service_role key never does.
+          # All public by definition: anything prefixed VITE_ is compiled into
+          # the bundle a visitor downloads.
           VITE_BASE_PATH: /nexus/
           VITE_SITE_URL: https://trinity-flux.github.io
-          VITE_DATA_SOURCE: memory
+          # Repository *variables*, not secrets. The anon key is published in
+          # the bundle either way, and marking it secret would only mask it in
+          # the build log while implying it protects something — it does not.
+          # Row Level Security is what authorises a request.
+          #
+          # The service_role key must never be set here, as a variable or a
+          # secret: it bypasses every policy.
+          #
+          # Defaulting to `memory` means the switch to the real backend happens
+          # entirely in Settings → Variables, with no commit, and a deployment
+          # keeps working until the variables are actually set.
+          VITE_DATA_SOURCE: ${{ vars.DATA_SOURCE || 'memory' }}
+          VITE_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
         run: pnpm run ci
 
       - name: Upload the built site

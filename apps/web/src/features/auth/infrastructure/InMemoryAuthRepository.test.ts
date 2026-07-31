@@ -19,8 +19,8 @@ describe('signIn', () => {
       password: 'kirintor',
     });
 
-    expect(result.ok).toBe(true);
-    expect(result.ok && result.session.member.role).toBe('moderator');
+    expect(result.status).toBe('signed-in');
+    expect(result.status === 'signed-in' && result.session.member.role).toBe('moderator');
   });
 
   it('ignores case and surrounding whitespace in the email', async () => {
@@ -29,7 +29,7 @@ describe('signIn', () => {
       password: 'kirintor',
     });
 
-    expect(result.ok).toBe(true);
+    expect(result.status).toBe('signed-in');
   });
 
   it('gives the same failure for a wrong password and an unknown account', async () => {
@@ -46,8 +46,8 @@ describe('signIn', () => {
 
     // Telling them apart turns the sign-in form into a way to test which email
     // addresses have accounts here.
-    expect(wrongPassword).toEqual({ ok: false, failure: 'invalid-credentials' });
-    expect(unknownAccount).toEqual({ ok: false, failure: 'invalid-credentials' });
+    expect(wrongPassword).toEqual({ status: 'failed', failure: 'invalid-credentials' });
+    expect(unknownAccount).toEqual({ status: 'failed', failure: 'invalid-credentials' });
   });
 });
 
@@ -58,9 +58,9 @@ describe('signUp', () => {
       password: 'longenoughpassword',
     });
 
-    expect(result.ok).toBe(true);
-    expect(result.ok && result.session.member.username).toBe('newcomer');
-    expect(result.ok && result.session.member.role).toBe('member');
+    expect(result.status).toBe('signed-in');
+    expect(result.status === 'signed-in' && result.session.member.username).toBe('newcomer');
+    expect(result.status === 'signed-in' && result.session.member.role).toBe('member');
   });
 
   it('refuses an email that is already registered', async () => {
@@ -69,7 +69,7 @@ describe('signUp', () => {
       password: 'longenoughpassword',
     });
 
-    expect(result).toEqual({ ok: false, failure: 'email-taken' });
+    expect(result).toEqual({ status: 'failed', failure: 'email-taken' });
   });
 
   it('refuses a short password', async () => {
@@ -78,7 +78,7 @@ describe('signUp', () => {
       password: 'short',
     });
 
-    expect(result).toEqual({ ok: false, failure: 'weak-password' });
+    expect(result).toEqual({ status: 'failed', failure: 'weak-password' });
   });
 });
 

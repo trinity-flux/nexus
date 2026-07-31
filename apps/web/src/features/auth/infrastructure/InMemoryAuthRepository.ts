@@ -101,12 +101,12 @@ export class InMemoryAuthRepository implements AuthRepository {
     // One failure for both "no such account" and "wrong password". Telling
     // them apart lets anyone test which email addresses are registered here.
     if (!match || match.password !== password) {
-      return { ok: false, failure: 'invalid-credentials' };
+      return { status: 'failed', failure: 'invalid-credentials' };
     }
 
     const session = startSession(match.member);
     this.publish(session);
-    return { ok: true, session };
+    return { status: 'signed-in', session };
   }
 
   async signUp({ email, password }: Credentials): Promise<AuthResult> {
@@ -115,11 +115,11 @@ export class InMemoryAuthRepository implements AuthRepository {
     const normalised = email.trim().toLowerCase();
 
     if (this.registered.some((entry) => entry.email.toLowerCase() === normalised)) {
-      return { ok: false, failure: 'email-taken' };
+      return { status: 'failed', failure: 'email-taken' };
     }
 
     if (password.length < MINIMUM_PASSWORD_LENGTH) {
-      return { ok: false, failure: 'weak-password' };
+      return { status: 'failed', failure: 'weak-password' };
     }
 
     const username = normalised.split('@')[0]?.replace(/[^a-z0-9_]/g, '') || 'member';
@@ -136,7 +136,7 @@ export class InMemoryAuthRepository implements AuthRepository {
 
     const session = startSession(member);
     this.publish(session);
-    return { ok: true, session };
+    return { status: 'signed-in', session };
   }
 
   async signInWithDiscord(): Promise<void> {
